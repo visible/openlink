@@ -1,0 +1,37 @@
+{
+  "name": "openlink",
+  "version": "0.1.0",
+  "description": "Edge-first link preview. Zero dependencies.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "types": "./src/index.d.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "link",
+    "preview",
+    "unfurl",
+    "opengraph",
+    "twitter-cards",
+    "meta",
+    "edge",
+    "cloudflare",
+    "workers"
+  ],
+  "author": "josh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/visible/openlink.git"
+  },
+  "homepage": "https://openlink.sh"
+}
