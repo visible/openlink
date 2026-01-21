@@ -14,7 +14,8 @@
     "src"
   ],
   "scripts": {
-    "test": "node test.js"
+    "test": "node --test tests/*.test.js",
+    "test:live": "node test.js"
   },
   "keywords": [
     "link",

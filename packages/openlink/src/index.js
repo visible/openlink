@@ -130,16 +130,16 @@ export function normalizeUrl(url, base) {
 
 	url = url.trim();
 
-	if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("//")) {
-		url = "https://" + url;
-	}
-
 	if (base) {
 		try {
 			return new URL(url, base).href;
 		} catch {
 			return url;
 		}
+	}
+
+	if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("//")) {
+		url = "https://" + url;
 	}
 
 	return url;
