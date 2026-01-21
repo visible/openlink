@@ -56,6 +56,15 @@ const cachedPreview = withCache(cache, preview)
 const data = await cachedPreview('https://github.com')
 ```
 
+## Image Size
+
+```js
+import { getImageSize } from 'openlink'
+
+const size = await getImageSize('https://example.com/image.png')
+console.log(size) // { width: 1200, height: 630, type: 'png' }
+```
+
 Works on Cloudflare Workers, Vercel Edge, Deno, Bun, and Node 18+.
 
 [Docs](https://openlink.sh/docs) · [API](https://openlink.sh/docs/api) · [TypeScript](https://openlink.sh/docs/typescript)

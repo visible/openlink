@@ -143,3 +143,4 @@ export { parseJsonLd, extractJsonLd } from "./jsonld.js";
 export { withRetry, isRetryable } from "./retry.js";
 export { createProxyFetch, corsProxy, allOriginsProxy } from "./proxy.js";
 export { createCache, cacheKey, memoryCache, withCache } from "./cache.js";
+export { getImageSize } from "./image.js";

@@ -410,3 +410,14 @@ export function withCache(
 	cache: Cache,
 	previewFn: typeof preview
 ): (url: string, options?: PreviewOptions & { cacheTtl?: number }) => Promise<PreviewResult>;
+
+export interface ImageSize {
+	width: number;
+	height: number;
+	type: "png" | "jpeg" | "gif" | "webp";
+}
+
+export function getImageSize(
+	url: string,
+	options?: { fetch?: typeof fetch; timeout?: number }
+): Promise<ImageSize | null>;

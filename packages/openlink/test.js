@@ -1,4 +1,4 @@
-import { preview, fetchOembed, hasOembedSupport, detectProvider, parseJsonLd, extractJsonLd, corsProxy, allOriginsProxy, withRetry, isRetryable, PreviewError, createCache, memoryCache, withCache, cacheKey } from './src/index.js'
+import { preview, fetchOembed, hasOembedSupport, detectProvider, parseJsonLd, extractJsonLd, corsProxy, allOriginsProxy, withRetry, isRetryable, PreviewError, createCache, memoryCache, withCache, cacheKey, getImageSize } from './src/index.js'
 
 const urls = [
 	'github.com',
@@ -115,6 +115,25 @@ async function run() {
 	await cachedPreview('https://cached.com')
 	await cachedPreview('https://cached.com')
 	console.log(`  withCache: ${fetchCount === 1 ? 'passed (1 fetch for 2 calls)' : 'failed'}`)
+
+	console.log('\n\nimage tests:')
+	const testImages = [
+		'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+		'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png'
+	]
+
+	for (const imgUrl of testImages) {
+		try {
+			const size = await getImageSize(imgUrl)
+			if (size) {
+				console.log(`  ${imgUrl.slice(-30)}: ${size.width}x${size.height} (${size.type})`)
+			} else {
+				console.log(`  ${imgUrl.slice(-30)}: failed`)
+			}
+		} catch (err) {
+			console.log(`  ${imgUrl.slice(-30)}: error - ${err.message}`)
+		}
+	}
 
 	console.log('\n\nall tests completed')
 }

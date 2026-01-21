@@ -263,6 +263,19 @@ const data = await cachedPreview("https://github.com", {
 
 Works with any storage backend (KV, Redis, etc) via get/set/delete interface.
 
+## getImageSize(url, options?)
+
+Detect image dimensions without downloading the full image.
+
+```typescript
+import { getImageSize } from "openlink"
+
+const size = await getImageSize("https://example.com/image.png")
+console.log(size) // { width: 1200, height: 630, type: "png" }
+```
+
+Supported formats: PNG, JPEG, GIF, WebP.
+
 ---
 
 # TypeScript Types
