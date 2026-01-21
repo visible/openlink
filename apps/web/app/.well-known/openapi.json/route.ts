@@ -5,7 +5,7 @@ export function GET() {
 		openapi: "3.1.0",
 		info: {
 			title: "OpenLink API",
-			version: "1.0.0",
+			version: "0.1.0",
 			description: "Extract link previews and metadata from any URL",
 		},
 		servers: [{ url: "https://openlink.sh" }],
