@@ -46,7 +46,7 @@ const providers = [
 	},
 	{
 		name: "figma",
-		pattern: /figma\.com\/(file|proto)\/([a-zA-Z0-9]+)/,
+		pattern: /figma\.com\/(file|design|proto)\/([a-zA-Z0-9]+)/,
 		endpoint: (url) => `https://www.figma.com/api/oembed?url=${encodeURIComponent(url)}`,
 	},
 ];
