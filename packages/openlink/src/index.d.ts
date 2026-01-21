@@ -120,6 +120,9 @@ export interface PreviewResult {
 	/** Content type from og:type */
 	type: string;
 
+	/** Detected content type (article, video, audio, product, profile, music, website) */
+	contentType: string;
+
 	/** Author name if available */
 	author: string | null;
 
@@ -134,6 +137,9 @@ export interface PreviewResult {
 
 	/** Locale from og:locale */
 	locale: string | null;
+
+	/** Language code from html lang attribute or content-language */
+	lang: string | null;
 
 	/** Video URL from og:video */
 	video: string | null;
@@ -232,6 +238,8 @@ export interface ParseResult {
 	keywords: string | null;
 	author: string | null;
 	robots: string | null;
+	htmlLang: string | null;
+	contentLanguage: string | null;
 }
 
 export class PreviewError extends Error {

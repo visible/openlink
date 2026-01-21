@@ -320,9 +320,11 @@ interface PreviewResult {
   themeColor: string | null
   twitterCard: string | null
   locale: string | null
+  lang: string | null
   video: string | null
   audio: string | null
   keywords: string[] | null
+  contentType: string
   raw?: ParseResult
   oembed?: OembedResult
   jsonLd?: JsonLdResult

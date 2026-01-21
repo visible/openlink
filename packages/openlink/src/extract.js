@@ -20,6 +20,8 @@ export function extract(parsed, url) {
 	const video = resolve(parsed.ogVideo, base);
 	const audio = resolve(parsed.ogAudio, base);
 	const keywords = parsed.keywords ? parsed.keywords.split(",").map((k) => k.trim()) : null;
+	const lang = parsed.htmlLang || parsed.contentLanguage || (locale ? locale.split("_")[0] : null);
+	const contentType = detectContentType(type, video, audio, parsed);
 
 	return {
 		url: canonical,
@@ -30,15 +32,28 @@ export function extract(parsed, url) {
 		siteName,
 		domain: base.hostname,
 		type,
+		contentType,
 		author,
 		publishedTime,
 		themeColor,
 		twitterCard,
 		locale,
+		lang,
 		video,
 		audio,
 		keywords,
 	};
+}
+
+function detectContentType(ogType, video, audio, parsed) {
+	if (video) return "video";
+	if (audio) return "audio";
+	if (ogType === "article" || parsed.articlePublishedTime) return "article";
+	if (ogType === "product") return "product";
+	if (ogType === "profile") return "profile";
+	if (ogType === "music.song" || ogType === "music.album") return "music";
+	if (ogType === "video.movie" || ogType === "video.episode") return "video";
+	return "website";
 }
 
 function resolve(path, base) {

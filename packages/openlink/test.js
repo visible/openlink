@@ -20,7 +20,8 @@ async function run() {
 		try {
 			const result = await preview(url)
 			console.log(`    title: ${result.title}`)
-			console.log(`    favicon: ${result.favicon}`)
+			console.log(`    contentType: ${result.contentType}`)
+			console.log(`    lang: ${result.lang || 'none'}`)
 		} catch (err) {
 			console.log(`    error: ${err.message}`)
 		}

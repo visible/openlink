@@ -32,6 +32,8 @@ const patterns = {
 	appleTouchIcon: link("apple-touch-icon"),
 	canonical: link("canonical"),
 	title: /<title[^>]*>([^<]*)<\/title>/i,
+	htmlLang: /<html[^>]*\slang=["']([^"']*)["'][^>]*>/i,
+	contentLanguage: /<meta[^>]*http-equiv=["']content-language["'][^>]*content=["']([^"']*)["'][^>]*>/i,
 };
 
 const entities = {
@@ -91,5 +93,7 @@ export function parse(html) {
 		keywords: get("keywords"),
 		author: get("author"),
 		robots: get("robots"),
+		htmlLang: get("htmlLang"),
+		contentLanguage: get("contentLanguage"),
 	};
 }
