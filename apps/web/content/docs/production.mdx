@@ -1,0 +1,214 @@
+---
+title: Production
+description: Best practices for production deployments.
+---
+
+## Caching Strategy
+
+Always cache preview results in production to reduce latency and external requests.
+
+### With Vercel KV
+
+```typescript
+import { preview, createCache, withCache } from "openlink"
+import { kv } from "@vercel/kv"
+
+const cache = createCache({
+  get: (key) => kv.get(key),
+  set: (key, value) => kv.set(key, value, { ex: 3600 }),
+  delete: (key) => kv.del(key)
+})
+
+const cachedPreview = withCache(cache, preview)
+```
+
+### With Cloudflare KV
+
+```typescript
+import { preview, createCache, withCache } from "openlink"
+
+const cache = createCache({
+  get: (key) => env.PREVIEW_CACHE.get(key),
+  set: (key, value) => env.PREVIEW_CACHE.put(key, value, { expirationTtl: 3600 }),
+  delete: (key) => env.PREVIEW_CACHE.delete(key)
+})
+```
+
+### With Redis
+
+```typescript
+import { preview, createCache, withCache } from "openlink"
+import Redis from "ioredis"
+
+const redis = new Redis(process.env.REDIS_URL)
+
+const cache = createCache({
+  get: (key) => redis.get(key),
+  set: (key, value) => redis.setex(key, 3600, value),
+  delete: (key) => redis.del(key)
+})
+```
+
+## Error Handling
+
+```typescript
+import { preview, PreviewError } from "openlink"
+
+async function safePreview(url: string) {
+  try {
+    return await preview(url, { retry: 2, timeout: 5000 })
+  } catch (error) {
+    if (error instanceof PreviewError) {
+      switch (error.code) {
+        case "TIMEOUT":
+          return { error: "Site took too long to respond" }
+        case "HTTP_ERROR":
+          return { error: `Site returned ${error.status}` }
+        case "INVALID_URL":
+          return { error: "Invalid URL format" }
+        default:
+          return { error: "Could not fetch preview" }
+      }
+    }
+    throw error
+  }
+}
+```
+
+## Rate Limiting
+
+Protect your API from abuse with rate limiting.
+
+### Basic Rate Limiter
+
+```typescript
+const rateLimit = new Map()
+
+function checkRateLimit(ip: string, limit = 100, window = 60000) {
+  const now = Date.now()
+  const record = rateLimit.get(ip) || { count: 0, start: now }
+
+  if (now - record.start > window) {
+    record.count = 0
+    record.start = now
+  }
+
+  record.count++
+  rateLimit.set(ip, record)
+
+  return record.count <= limit
+}
+```
+
+### With Upstash
+
+```typescript
+import { Ratelimit } from "@upstash/ratelimit"
+import { Redis } from "@upstash/redis"
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(100, "1 m")
+})
+
+export async function GET(request: Request) {
+  const ip = request.headers.get("x-forwarded-for") || "anonymous"
+  const { success } = await ratelimit.limit(ip)
+
+  if (!success) {
+    return Response.json({ error: "Rate limited" }, { status: 429 })
+  }
+
+  // continue with preview
+}
+```
+
+## Timeouts
+
+Set appropriate timeouts for production.
+
+```typescript
+const data = await preview(url, {
+  timeout: 5000,
+  retry: 2,
+  retryDelay: 500
+})
+```
+
+## URL Validation
+
+Always validate user input.
+
+```typescript
+import { isValidUrl, normalizeUrl, preview } from "openlink"
+
+function validateUrl(input: string) {
+  const url = normalizeUrl(input)
+
+  if (!isValidUrl(url)) {
+    throw new Error("Invalid URL")
+  }
+
+  const parsed = new URL(url)
+
+  if (parsed.hostname === "localhost" || parsed.hostname.startsWith("127.")) {
+    throw new Error("Local URLs not allowed")
+  }
+
+  if (parsed.hostname.endsWith(".internal")) {
+    throw new Error("Internal URLs not allowed")
+  }
+
+  return url
+}
+```
+
+## Response Headers
+
+Set appropriate cache headers for your API.
+
+```typescript
+export async function GET(request: Request) {
+  const url = new URL(request.url).searchParams.get("url")
+  const data = await preview(url)
+
+  return Response.json(data, {
+    headers: {
+      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      "CDN-Cache-Control": "max-age=86400"
+    }
+  })
+}
+```
+
+## Monitoring
+
+Track errors and performance.
+
+```typescript
+import { preview, PreviewError } from "openlink"
+
+async function trackedPreview(url: string) {
+  const start = Date.now()
+
+  try {
+    const data = await preview(url)
+    const duration = Date.now() - start
+
+    // Send to your analytics
+    track("preview_success", { url, duration })
+
+    return data
+  } catch (error) {
+    const duration = Date.now() - start
+
+    track("preview_error", {
+      url,
+      duration,
+      code: error instanceof PreviewError ? error.code : "UNKNOWN"
+    })
+
+    throw error
+  }
+}
+```

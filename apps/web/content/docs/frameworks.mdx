@@ -1,0 +1,156 @@
+---
+title: Frameworks
+description: Using OpenLink with popular frameworks.
+---
+
+## Next.js
+
+### App Router
+
+```typescript
+import { preview } from "openlink"
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const url = searchParams.get("url")
+
+  if (!url) {
+    return Response.json({ error: "Missing url" }, { status: 400 })
+  }
+
+  const data = await preview(url, { retry: 2 })
+  return Response.json(data)
+}
+```
+
+### Server Component
+
+```typescript
+import { preview } from "openlink"
+
+export default async function LinkPreview({ url }: { url: string }) {
+  const data = await preview(url)
+
+  return (
+    <div>
+      <h3>{data.title}</h3>
+      <p>{data.description}</p>
+      {data.image && <img src={data.image} alt="" />}
+    </div>
+  )
+}
+```
+
+### Server Action
+
+```typescript
+"use server"
+
+import { preview } from "openlink"
+
+export async function getPreview(url: string) {
+  return preview(url)
+}
+```
+
+## Nuxt
+
+### Server Route
+
+```typescript
+import { preview } from "openlink"
+
+export default defineEventHandler(async (event) => {
+  const url = getQuery(event).url as string
+
+  if (!url) {
+    throw createError({ statusCode: 400, message: "Missing url" })
+  }
+
+  return preview(url)
+})
+```
+
+### Composable
+
+```typescript
+export const useLinkPreview = async (url: string) => {
+  const { data } = await useFetch(`/api/preview?url=${encodeURIComponent(url)}`)
+  return data
+}
+```
+
+## SvelteKit
+
+### Server Route
+
+```typescript
+import { preview } from "openlink"
+import { json, error } from "@sveltejs/kit"
+
+export async function GET({ url }) {
+  const targetUrl = url.searchParams.get("url")
+
+  if (!targetUrl) {
+    throw error(400, "Missing url")
+  }
+
+  const data = await preview(targetUrl)
+  return json(data)
+}
+```
+
+### Load Function
+
+```typescript
+import { preview } from "openlink"
+
+export async function load({ params }) {
+  const url = decodeURIComponent(params.url)
+  const data = await preview(url)
+  return { preview: data }
+}
+```
+
+## Remix
+
+### Loader
+
+```typescript
+import { preview } from "openlink"
+import { json } from "@remix-run/node"
+
+export async function loader({ request }) {
+  const url = new URL(request.url)
+  const targetUrl = url.searchParams.get("url")
+
+  if (!targetUrl) {
+    return json({ error: "Missing url" }, { status: 400 })
+  }
+
+  const data = await preview(targetUrl)
+  return json(data)
+}
+```
+
+## Astro
+
+### API Route
+
+```typescript
+import type { APIRoute } from "astro"
+import { preview } from "openlink"
+
+export const GET: APIRoute = async ({ url }) => {
+  const targetUrl = url.searchParams.get("url")
+
+  if (!targetUrl) {
+    return new Response(JSON.stringify({ error: "Missing url" }), {
+      status: 400
+    })
+  }
+
+  const data = await preview(targetUrl)
+  return new Response(JSON.stringify(data))
+}
+```
