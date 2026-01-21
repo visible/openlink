@@ -9,11 +9,25 @@ import { useI18n } from "./i18n/context";
 import { Logo } from "./logo";
 import specs from "./specs.json";
 
+const jsonld = {
+	"@context": "https://schema.org",
+	"@type": "SoftwareSourceCode",
+	name: "OpenLink",
+	description: "Edge-first link preview library. Zero dependencies, ~2kb gzipped.",
+	url: "https://openlink.sh",
+	codeRepository: "https://github.com/visible/openlink",
+	programmingLanguage: ["JavaScript", "TypeScript"],
+	runtimePlatform: ["Node.js", "Deno", "Bun", "Cloudflare Workers", "Vercel Edge"],
+	license: "https://opensource.org/licenses/MIT",
+	author: { "@type": "Organization", name: "Visible", url: "https://visible.com" },
+};
+
 export default function Page() {
 	const { t } = useI18n();
 
 	return (
 		<main className="min-h-screen bg-white dark:bg-neutral-950 text-black dark:text-white transition-colors">
+			<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
 			<div className="sticky top-0 z-50 max-w-5xl mx-auto px-8">
 				<nav className="h-14 flex items-center justify-between bg-white/80 dark:bg-neutral-950/80 backdrop-blur-sm border-b border-neutral-200 dark:border-neutral-800">
 					<a href="/" className="flex items-center gap-2 group">
