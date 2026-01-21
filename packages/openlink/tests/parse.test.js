@@ -1,6 +1,6 @@
-import { test } from "node:test"
-import assert from "node:assert"
-import { parse } from "../src/parse.js"
+import assert from "node:assert";
+import { test } from "node:test";
+import { parse } from "../src/parse.js";
 
 test("parse og tags", () => {
 	const html = `
@@ -14,16 +14,16 @@ test("parse og tags", () => {
 				<meta property="og:url" content="https://example.com/page">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.ogTitle, "Test Title")
-	assert.strictEqual(result.ogDescription, "Test Description")
-	assert.strictEqual(result.ogImage, "https://example.com/image.png")
-	assert.strictEqual(result.ogType, "article")
-	assert.strictEqual(result.ogSiteName, "Test Site")
-	assert.strictEqual(result.ogUrl, "https://example.com/page")
-})
+	assert.strictEqual(result.ogTitle, "Test Title");
+	assert.strictEqual(result.ogDescription, "Test Description");
+	assert.strictEqual(result.ogImage, "https://example.com/image.png");
+	assert.strictEqual(result.ogType, "article");
+	assert.strictEqual(result.ogSiteName, "Test Site");
+	assert.strictEqual(result.ogUrl, "https://example.com/page");
+});
 
 test("parse twitter tags", () => {
 	const html = `
@@ -36,15 +36,15 @@ test("parse twitter tags", () => {
 				<meta name="twitter:site" content="@example">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.twitterTitle, "Twitter Title")
-	assert.strictEqual(result.twitterDescription, "Twitter Desc")
-	assert.strictEqual(result.twitterImage, "https://example.com/twitter.png")
-	assert.strictEqual(result.twitterCard, "summary_large_image")
-	assert.strictEqual(result.twitterSite, "@example")
-})
+	assert.strictEqual(result.twitterTitle, "Twitter Title");
+	assert.strictEqual(result.twitterDescription, "Twitter Desc");
+	assert.strictEqual(result.twitterImage, "https://example.com/twitter.png");
+	assert.strictEqual(result.twitterCard, "summary_large_image");
+	assert.strictEqual(result.twitterSite, "@example");
+});
 
 test("parse standard meta tags", () => {
 	const html = `
@@ -57,15 +57,15 @@ test("parse standard meta tags", () => {
 				<meta name="theme-color" content="#ff0000">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.title, "Page Title")
-	assert.strictEqual(result.description, "Page description")
-	assert.strictEqual(result.author, "John Doe")
-	assert.strictEqual(result.keywords, "test, example, keywords")
-	assert.strictEqual(result.themeColor, "#ff0000")
-})
+	assert.strictEqual(result.title, "Page Title");
+	assert.strictEqual(result.description, "Page description");
+	assert.strictEqual(result.author, "John Doe");
+	assert.strictEqual(result.keywords, "test, example, keywords");
+	assert.strictEqual(result.themeColor, "#ff0000");
+});
 
 test("parse link tags", () => {
 	const html = `
@@ -76,13 +76,13 @@ test("parse link tags", () => {
 				<link rel="canonical" href="https://example.com/canonical">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.favicon, "/favicon.ico")
-	assert.strictEqual(result.appleTouchIcon, "/apple-icon.png")
-	assert.strictEqual(result.canonical, "https://example.com/canonical")
-})
+	assert.strictEqual(result.favicon, "/favicon.ico");
+	assert.strictEqual(result.appleTouchIcon, "/apple-icon.png");
+	assert.strictEqual(result.canonical, "https://example.com/canonical");
+});
 
 test("parse language attributes", () => {
 	const html = `
@@ -91,12 +91,12 @@ test("parse language attributes", () => {
 				<meta http-equiv="content-language" content="en">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.htmlLang, "en-US")
-	assert.strictEqual(result.contentLanguage, "en")
-})
+	assert.strictEqual(result.htmlLang, "en-US");
+	assert.strictEqual(result.contentLanguage, "en");
+});
 
 test("decode html entities", () => {
 	const html = `
@@ -106,22 +106,22 @@ test("decode html entities", () => {
 				<meta property="og:description" content="It&#39;s a test &lt;tag&gt;">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.ogTitle, 'Test & Title "quoted"')
-	assert.strictEqual(result.ogDescription, "It's a test <tag>")
-})
+	assert.strictEqual(result.ogTitle, 'Test & Title "quoted"');
+	assert.strictEqual(result.ogDescription, "It's a test <tag>");
+});
 
 test("handle missing tags", () => {
-	const html = "<html><head></head></html>"
-	const result = parse(html)
+	const html = "<html><head></head></html>";
+	const result = parse(html);
 
-	assert.strictEqual(result.ogTitle, null)
-	assert.strictEqual(result.ogDescription, null)
-	assert.strictEqual(result.title, null)
-	assert.strictEqual(result.favicon, null)
-})
+	assert.strictEqual(result.ogTitle, null);
+	assert.strictEqual(result.ogDescription, null);
+	assert.strictEqual(result.title, null);
+	assert.strictEqual(result.favicon, null);
+});
 
 test("handle reversed attribute order", () => {
 	const html = `
@@ -131,12 +131,12 @@ test("handle reversed attribute order", () => {
 				<meta content="Reversed Desc" name="description">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.ogTitle, "Reversed Title")
-	assert.strictEqual(result.description, "Reversed Desc")
-})
+	assert.strictEqual(result.ogTitle, "Reversed Title");
+	assert.strictEqual(result.description, "Reversed Desc");
+});
 
 test("parse article metadata", () => {
 	const html = `
@@ -146,12 +146,12 @@ test("parse article metadata", () => {
 				<meta property="article:published_time" content="2024-01-15T10:00:00Z">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.articleAuthor, "Jane Smith")
-	assert.strictEqual(result.articlePublishedTime, "2024-01-15T10:00:00Z")
-})
+	assert.strictEqual(result.articleAuthor, "Jane Smith");
+	assert.strictEqual(result.articlePublishedTime, "2024-01-15T10:00:00Z");
+});
 
 test("parse og image dimensions", () => {
 	const html = `
@@ -163,11 +163,11 @@ test("parse og image dimensions", () => {
 				<meta property="og:image:alt" content="Image description">
 			</head>
 		</html>
-	`
-	const result = parse(html)
+	`;
+	const result = parse(html);
 
-	assert.strictEqual(result.ogImage, "https://example.com/image.png")
-	assert.strictEqual(result.ogImageWidth, "1200")
-	assert.strictEqual(result.ogImageHeight, "630")
-	assert.strictEqual(result.ogImageAlt, "Image description")
-})
+	assert.strictEqual(result.ogImage, "https://example.com/image.png");
+	assert.strictEqual(result.ogImageWidth, "1200");
+	assert.strictEqual(result.ogImageHeight, "630");
+	assert.strictEqual(result.ogImageAlt, "Image description");
+});

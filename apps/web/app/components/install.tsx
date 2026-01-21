@@ -48,8 +48,7 @@ export function InstallCommand() {
 					}}
 				>
 					{current.name}
-				</span>
-				{" "}
+				</span>{" "}
 				<span
 					style={{
 						display: "inline-block",
@@ -59,8 +58,8 @@ export function InstallCommand() {
 					}}
 				>
 					{current.verb}
-				</span>
-				{" "}openlink
+				</span>{" "}
+				openlink
 			</span>
 			<CopyButton text={cmd} />
 		</div>

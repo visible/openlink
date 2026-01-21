@@ -8,13 +8,7 @@ export function Logo({
 	style?: CSSProperties;
 }) {
 	return (
-		<svg
-			viewBox="0 0 24 24"
-			fill="none"
-			className={className}
-			style={style}
-			aria-hidden="true"
-		>
+		<svg viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
 			<path
 				d="M10 6H6v12h12v-4"
 				stroke="currentColor"

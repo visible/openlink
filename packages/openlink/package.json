@@ -1,40 +1,45 @@
 {
-  "name": "openlink",
-  "version": "0.2.0",
-  "description": "Edge-first link preview. Zero dependencies.",
-  "type": "module",
-  "main": "src/index.js",
-  "exports": {
-    ".": {
-      "import": "./src/index.js",
-      "types": "./src/index.d.ts"
-    }
-  },
-  "files": [
-    "src"
-  ],
-  "scripts": {
-    "test": "node --test tests/*.test.js",
-    "test:live": "node test.js"
-  },
-  "keywords": [
-    "link",
-    "preview",
-    "unfurl",
-    "opengraph",
-    "twitter-cards",
-    "oembed",
-    "youtube",
-    "meta",
-    "edge",
-    "cloudflare",
-    "workers"
-  ],
-  "author": "josh",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/visible/openlink.git"
-  },
-  "homepage": "https://openlink.sh"
+	"name": "openlink",
+	"version": "0.3.0",
+	"description": "Edge-first link preview. Zero dependencies.",
+	"type": "module",
+	"main": "src/index.js",
+	"types": "src/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./src/index.d.ts",
+			"import": "./src/index.js",
+			"default": "./src/index.js"
+		}
+	},
+	"sideEffects": false,
+	"files": ["src"],
+	"engines": {
+		"node": ">=18"
+	},
+	"scripts": {
+		"test": "node --test tests/*.test.js",
+		"test:live": "node test.js",
+		"prepublishOnly": "npm test"
+	},
+	"keywords": [
+		"link",
+		"preview",
+		"unfurl",
+		"opengraph",
+		"twitter-cards",
+		"oembed",
+		"youtube",
+		"meta",
+		"edge",
+		"cloudflare",
+		"workers"
+	],
+	"author": "josh",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/visible/openlink.git"
+	},
+	"homepage": "https://openlink.sh"
 }

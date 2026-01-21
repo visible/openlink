@@ -8,7 +8,8 @@ export const translations = {
 		hero: {
 			title: "Link previews for the edge.",
 			titleSub: "",
-			description: "Extract metadata from any URL. Zero dependencies, TypeScript native. Add rich link previews to your app in seconds.",
+			description:
+				"Extract metadata from any URL. Zero dependencies, TypeScript native. Add rich link previews to your app in seconds.",
 			stats: "5kb gzipped / zero dependencies / MIT license",
 			input: "Input",
 			output: "Output",
@@ -17,7 +18,8 @@ export const translations = {
 			label: "Works everywhere",
 			title: "Built for the edge.",
 			cloudflare: "Cloudflare Workers",
-			cloudflareDesc: "Deploy globally with instant cold starts. Perfect for API routes and middleware.",
+			cloudflareDesc:
+				"Deploy globally with instant cold starts. Perfect for API routes and middleware.",
 			vercel: "Vercel Edge",
 			vercelDesc: "Integrate seamlessly with Next.js edge functions and serverless deployments.",
 			deno: "Deno Deploy",
@@ -27,14 +29,16 @@ export const translations = {
 			label: "Simple API",
 			title: "One function.",
 			titleSub: "All the metadata.",
-			description: "Pass a URL, get back structured data. Supports Open Graph, Twitter Cards, JSON-LD, meta tags, and favicon detection.",
+			description:
+				"Pass a URL, get back structured data. Supports Open Graph, Twitter Cards, JSON-LD, meta tags, and favicon detection.",
 			readDocs: "Read the docs",
 		},
 		typescript: {
 			label: "TypeScript first",
 			title: "Full type safety",
 			titleSub: "out of the box.",
-			description: "Complete type definitions included. Get autocomplete, inline docs, and compile-time checks without any extra setup.",
+			description:
+				"Complete type definitions included. Get autocomplete, inline docs, and compile-time checks without any extra setup.",
 		},
 		benchmarks: {
 			label: "Benchmarks",
@@ -68,7 +72,8 @@ export const translations = {
 		hero: {
 			title: "边缘原生链接预览",
 			titleSub: "",
-			description: "从任何 URL 提取元数据。零依赖、TypeScript 原生。几秒钟内为您的应用添加丰富的链接预览。",
+			description:
+				"从任何 URL 提取元数据。零依赖、TypeScript 原生。几秒钟内为您的应用添加丰富的链接预览。",
 			stats: "5kb gzip / 零依赖 / MIT 许可证",
 			input: "输入",
 			output: "输出",
@@ -87,7 +92,8 @@ export const translations = {
 			label: "简单 API",
 			title: "一个函数。",
 			titleSub: "所有元数据。",
-			description: "传入 URL，返回结构化数据。支持 Open Graph、Twitter Cards、JSON-LD、meta 标签和 favicon 检测。",
+			description:
+				"传入 URL，返回结构化数据。支持 Open Graph、Twitter Cards、JSON-LD、meta 标签和 favicon 检测。",
 			readDocs: "阅读文档",
 		},
 		typescript: {
@@ -128,7 +134,8 @@ export const translations = {
 		hero: {
 			title: "エッジ向けリンクプレビュー",
 			titleSub: "",
-			description: "任意のURLからメタデータを抽出。依存関係ゼロ、TypeScriptネイティブ。数秒でアプリにリッチなリンクプレビューを追加。",
+			description:
+				"任意のURLからメタデータを抽出。依存関係ゼロ、TypeScriptネイティブ。数秒でアプリにリッチなリンクプレビューを追加。",
 			stats: "5kb gzip / 依存関係ゼロ / MITライセンス",
 			input: "入力",
 			output: "出力",
@@ -137,7 +144,8 @@ export const translations = {
 			label: "どこでも動作",
 			title: "エッジ向けに構築。",
 			cloudflare: "Cloudflare Workers",
-			cloudflareDesc: "即座のコールドスタートでグローバルにデプロイ。APIルートとミドルウェアに最適。",
+			cloudflareDesc:
+				"即座のコールドスタートでグローバルにデプロイ。APIルートとミドルウェアに最適。",
 			vercel: "Vercel Edge",
 			vercelDesc: "Next.jsエッジ関数とサーバーレスデプロイメントにシームレスに統合。",
 			deno: "Deno Deploy",
@@ -147,14 +155,16 @@ export const translations = {
 			label: "シンプルなAPI",
 			title: "一つの関数。",
 			titleSub: "すべてのメタデータ。",
-			description: "URLを渡すと構造化データを返します。Open Graph、Twitter Cards、JSON-LD、metaタグ、faviconの検出に対応。",
+			description:
+				"URLを渡すと構造化データを返します。Open Graph、Twitter Cards、JSON-LD、metaタグ、faviconの検出に対応。",
 			readDocs: "ドキュメントを読む",
 		},
 		typescript: {
 			label: "TypeScriptファースト",
 			title: "完全な型安全性",
 			titleSub: "すぐに使える。",
-			description: "完全な型定義が含まれています。追加設定なしで自動補完、インラインドキュメント、コンパイル時チェックを取得。",
+			description:
+				"完全な型定義が含まれています。追加設定なしで自動補完、インラインドキュメント、コンパイル時チェックを取得。",
 		},
 		benchmarks: {
 			label: "ベンチマーク",
@@ -188,7 +198,8 @@ export const translations = {
 		hero: {
 			title: "邊緣原生連結預覽",
 			titleSub: "",
-			description: "從任何 URL 提取中繼資料。零依賴、TypeScript 原生。幾秒鐘內為您的應用程式新增豐富的連結預覽。",
+			description:
+				"從任何 URL 提取中繼資料。零依賴、TypeScript 原生。幾秒鐘內為您的應用程式新增豐富的連結預覽。",
 			stats: "5kb gzip / 零依賴 / MIT 授權",
 			input: "輸入",
 			output: "輸出",
@@ -207,7 +218,8 @@ export const translations = {
 			label: "簡單 API",
 			title: "一個函數。",
 			titleSub: "所有中繼資料。",
-			description: "傳入 URL，返回結構化資料。支援 Open Graph、Twitter Cards、JSON-LD、meta 標籤和 favicon 偵測。",
+			description:
+				"傳入 URL，返回結構化資料。支援 Open Graph、Twitter Cards、JSON-LD、meta 標籤和 favicon 偵測。",
 			readDocs: "閱讀文件",
 		},
 		typescript: {

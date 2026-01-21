@@ -2,9 +2,9 @@ const pattern = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<
 
 export function parseJsonLd(html) {
 	const results = [];
-	let match;
+	let match = pattern.exec(html);
 
-	while ((match = pattern.exec(html)) !== null) {
+	while (match !== null) {
 		try {
 			const data = JSON.parse(match[1].trim());
 			if (Array.isArray(data)) {
@@ -12,9 +12,8 @@ export function parseJsonLd(html) {
 			} else {
 				results.push(data);
 			}
-		} catch {
-			continue;
-		}
+		} catch {}
+		match = pattern.exec(html);
 	}
 
 	pattern.lastIndex = 0;
@@ -24,6 +23,7 @@ export function parseJsonLd(html) {
 export function extractJsonLd(items) {
 	if (!items.length) return null;
 
+	/** @type {{ types: string[], data: any[], article?: any, product?: any, organization?: any, video?: any, breadcrumbs?: any }} */
 	const result = {
 		types: [],
 		data: items,
@@ -41,10 +41,8 @@ export function extractJsonLd(items) {
 		}
 	}
 
-	const article = items.find((i) =>
-		i["@type"] === "Article" ||
-		i["@type"] === "NewsArticle" ||
-		i["@type"] === "BlogPosting"
+	const article = items.find(
+		(i) => i["@type"] === "Article" || i["@type"] === "NewsArticle" || i["@type"] === "BlogPosting",
 	);
 
 	if (article) {

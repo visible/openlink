@@ -39,8 +39,7 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://openlink.sh"),
 	openGraph: {
 		title: "OpenLink - Edge-first link preview",
-		description:
-			"Link preview library for the edge. Zero dependencies, ~2kb gzipped.",
+		description: "Link preview library for the edge. Zero dependencies, ~2kb gzipped.",
 		url: "https://openlink.sh",
 		siteName: "OpenLink",
 		type: "website",
@@ -49,8 +48,7 @@ export const metadata: Metadata = {
 	twitter: {
 		card: "summary_large_image",
 		title: "OpenLink - Edge-first link preview",
-		description:
-			"Link preview library for the edge. Zero dependencies, ~2kb gzipped.",
+		description: "Link preview library for the edge. Zero dependencies, ~2kb gzipped.",
 		images: ["/og"],
 	},
 	robots: {
@@ -75,9 +73,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 			<body className="bg-white dark:bg-neutral-950">
 				<RootProvider>
 					<ThemeColor />
-					<I18nProvider>
-						{children}
-					</I18nProvider>
+					<I18nProvider>{children}</I18nProvider>
 				</RootProvider>
 				<Analytics />
 			</body>

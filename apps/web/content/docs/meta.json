@@ -1,24 +1,24 @@
 {
-  "title": "Documentation",
-  "pages": [
-    "index",
-    "---Getting Started---",
-    "installation",
-    "quickstart",
-    "---API Reference---",
-    "api",
-    "preview",
-    "favicon",
-    "oembed",
-    "retry",
-    "proxy",
-    "---Advanced---",
-    "typescript",
-    "edge",
-    "frameworks",
-    "caching",
-    "production",
-    "errors",
-    "ai"
-  ]
+	"title": "Documentation",
+	"pages": [
+		"index",
+		"---Getting Started---",
+		"installation",
+		"quickstart",
+		"---API Reference---",
+		"api",
+		"preview",
+		"favicon",
+		"oembed",
+		"retry",
+		"proxy",
+		"---Advanced---",
+		"typescript",
+		"edge",
+		"frameworks",
+		"caching",
+		"production",
+		"errors",
+		"ai"
+	]
 }

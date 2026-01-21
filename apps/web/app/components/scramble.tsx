@@ -61,12 +61,7 @@ function runScramble(
 	});
 }
 
-export function Scramble({
-	text,
-	className,
-	delay = 0,
-	duration = 0.9,
-}: ScrambleProps) {
+export function Scramble({ text, className, delay = 0, duration = 0.9 }: ScrambleProps) {
 	const [displayText, setDisplayText] = useState(text);
 	const [hasAnimated, setHasAnimated] = useState(false);
 	const containerRef = useRef<HTMLSpanElement>(null);

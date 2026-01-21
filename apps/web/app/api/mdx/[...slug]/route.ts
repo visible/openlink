@@ -1,11 +1,8 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { notFound } from "next/navigation";
-import fs from "fs/promises";
-import path from "path";
 
-export async function GET(
-	request: Request,
-	{ params }: { params: Promise<{ slug: string[] }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string[] }> }) {
 	const { slug } = await params;
 	const slugPath = slug.join("/");
 	const fileName = slugPath === "index" ? "index.mdx" : `${slugPath}.mdx`;

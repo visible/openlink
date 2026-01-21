@@ -1,10 +1,5 @@
 export async function withRetry(fn, options = {}) {
-	const {
-		retries = 3,
-		delay = 1000,
-		backoff = 2,
-		shouldRetry = () => true,
-	} = options;
+	const { retries = 3, delay = 1000, backoff = 2, shouldRetry = () => true } = options;
 
 	let lastError;
 	let currentDelay = delay;

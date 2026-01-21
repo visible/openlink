@@ -1,20 +1,15 @@
+import { CopyMarkdown } from "@/app/components/copymd";
 import { source } from "@/app/lib/source";
-import {
-	DocsPage,
-	DocsBody,
-	DocsTitle,
-	DocsDescription,
-} from "fumadocs-ui/page";
-import { notFound } from "next/navigation";
-import defaultMdxComponents from "fumadocs-ui/mdx";
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
-import { Step, Steps } from "fumadocs-ui/components/steps";
-import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { Callout } from "fumadocs-ui/components/callout";
 import { Card, Cards } from "fumadocs-ui/components/card";
-import { File, Folder, Files } from "fumadocs-ui/components/files";
+import { File, Files, Folder } from "fumadocs-ui/components/files";
+import { Step, Steps } from "fumadocs-ui/components/steps";
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+import defaultMdxComponents from "fumadocs-ui/mdx";
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page";
 import type { MDXContent } from "mdx/types";
-import { CopyMarkdown } from "@/app/components/copymd";
+import { notFound } from "next/navigation";
 
 const components = {
 	...defaultMdxComponents,

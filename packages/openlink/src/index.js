@@ -1,8 +1,8 @@
-import { parse } from "./parse.js";
 import { extract } from "./extract.js";
-import { fetchOembed, hasOembedSupport, detectProvider } from "./oembed.js";
-import { parseJsonLd, extractJsonLd } from "./jsonld.js";
-import { withRetry, isRetryable } from "./retry.js";
+import { extractJsonLd, parseJsonLd } from "./jsonld.js";
+import { detectProvider, fetchOembed, hasOembedSupport } from "./oembed.js";
+import { parse } from "./parse.js";
+import { isRetryable, withRetry } from "./retry.js";
 
 export class PreviewError extends Error {
 	constructor(message, code, options = {}) {
@@ -36,13 +36,13 @@ export async function preview(url, options = {}) {
 		throw new PreviewError("URL is required", "INVALID_URL");
 	}
 
-	url = normalizeUrl(url);
+	const normalized = normalizeUrl(url);
 
-	if (opts.validateUrl && !isValidUrl(url)) {
+	if (opts.validateUrl && !isValidUrl(normalized)) {
 		throw new PreviewError("Invalid URL format", "INVALID_URL");
 	}
 
-	const doFetch = () => fetchPreview(url, opts);
+	const doFetch = () => fetchPreview(normalized, opts);
 
 	if (opts.retry > 0) {
 		return withRetry(doFetch, {
@@ -97,15 +97,21 @@ async function fetchPreview(url, opts) {
 		if (err instanceof PreviewError) throw err;
 
 		if (err.name === "AbortError") {
-			throw new PreviewError(`Request timed out after ${opts.timeout}ms`, "TIMEOUT", { cause: err });
+			throw new PreviewError(`Request timed out after ${opts.timeout}ms`, "TIMEOUT", {
+				cause: err,
+			});
 		}
 
 		if (err.code === "ENOTFOUND" || err.code === "ECONNREFUSED") {
-			throw new PreviewError(`Cannot connect to ${new URL(url).hostname}`, "FETCH_ERROR", { cause: err });
+			throw new PreviewError(`Cannot connect to ${new URL(url).hostname}`, "FETCH_ERROR", {
+				cause: err,
+			});
 		}
 
 		if (err.code === "CERT_HAS_EXPIRED" || err.code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE") {
-			throw new PreviewError(`SSL certificate error for ${new URL(url).hostname}`, "FETCH_ERROR", { cause: err });
+			throw new PreviewError(`SSL certificate error for ${new URL(url).hostname}`, "FETCH_ERROR", {
+				cause: err,
+			});
 		}
 
 		throw new PreviewError(err.message || `Failed to fetch ${url}`, "FETCH_ERROR", {
@@ -128,21 +134,21 @@ export function isValidUrl(url) {
 export function normalizeUrl(url, base) {
 	if (!url) return url;
 
-	url = url.trim();
+	let result = url.trim();
 
 	if (base) {
 		try {
-			return new URL(url, base).href;
+			return new URL(result, base).href;
 		} catch {
-			return url;
+			return result;
 		}
 	}
 
-	if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("//")) {
-		url = "https://" + url;
+	if (!result.startsWith("http://") && !result.startsWith("https://") && !result.startsWith("//")) {
+		result = `https://${result}`;
 	}
 
-	return url;
+	return result;
 }
 
 function getStatusText(status) {
@@ -160,7 +166,7 @@ function getStatusText(status) {
 		503: "Service Unavailable",
 		504: "Gateway Timeout",
 	};
-	return texts[status] || `HTTP Error`;
+	return texts[status] || "HTTP Error";
 }
 
 export { parse } from "./parse.js";

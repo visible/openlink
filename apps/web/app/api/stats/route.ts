@@ -4,10 +4,9 @@ export const revalidate = 3600;
 
 async function fetchNpmDownloads(): Promise<number> {
 	try {
-		const res = await fetch(
-			"https://api.npmjs.org/downloads/point/last-week/openlink",
-			{ next: { revalidate: 3600 } }
-		);
+		const res = await fetch("https://api.npmjs.org/downloads/point/last-week/openlink", {
+			next: { revalidate: 3600 },
+		});
 		const data = await res.json();
 		return data.downloads ?? 0;
 	} catch {
@@ -17,13 +16,10 @@ async function fetchNpmDownloads(): Promise<number> {
 
 async function fetchGithubStars(): Promise<number> {
 	try {
-		const res = await fetch(
-			"https://api.github.com/repos/visible/openlink",
-			{
-				headers: { Accept: "application/vnd.github.v3+json" },
-				next: { revalidate: 3600 },
-			}
-		);
+		const res = await fetch("https://api.github.com/repos/visible/openlink", {
+			headers: { Accept: "application/vnd.github.v3+json" },
+			next: { revalidate: 3600 },
+		});
 		const data = await res.json();
 		return data.stargazers_count ?? 0;
 	} catch {
@@ -38,10 +34,7 @@ function format(num: number): string {
 }
 
 export async function GET() {
-	const [downloads, stars] = await Promise.all([
-		fetchNpmDownloads(),
-		fetchGithubStars(),
-	]);
+	const [downloads, stars] = await Promise.all([fetchNpmDownloads(), fetchGithubStars()]);
 
 	return NextResponse.json({
 		downloads: { raw: downloads, formatted: format(downloads) },

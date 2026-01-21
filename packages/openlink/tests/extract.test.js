@@ -1,6 +1,6 @@
-import { test } from "node:test"
-import assert from "node:assert"
-import { extract } from "../src/extract.js"
+import assert from "node:assert";
+import { test } from "node:test";
+import { extract } from "../src/extract.js";
 
 test("extract with og data", () => {
 	const parsed = {
@@ -29,19 +29,19 @@ test("extract with og data", () => {
 		ogAudio: null,
 		htmlLang: "en",
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com/page")
+	const result = extract(parsed, "https://example.com/page");
 
-	assert.strictEqual(result.title, "OG Title")
-	assert.strictEqual(result.description, "OG Description")
-	assert.strictEqual(result.image, "https://example.com/og.png")
-	assert.strictEqual(result.type, "article")
-	assert.strictEqual(result.siteName, "Example Site")
-	assert.strictEqual(result.locale, "en_US")
-	assert.strictEqual(result.lang, "en")
-	assert.strictEqual(result.contentType, "article")
-})
+	assert.strictEqual(result.title, "OG Title");
+	assert.strictEqual(result.description, "OG Description");
+	assert.strictEqual(result.image, "https://example.com/og.png");
+	assert.strictEqual(result.type, "article");
+	assert.strictEqual(result.siteName, "Example Site");
+	assert.strictEqual(result.locale, "en_US");
+	assert.strictEqual(result.lang, "en");
+	assert.strictEqual(result.contentType, "article");
+});
 
 test("extract fallback to twitter", () => {
 	const parsed = {
@@ -70,15 +70,15 @@ test("extract fallback to twitter", () => {
 		ogAudio: null,
 		htmlLang: null,
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com")
+	const result = extract(parsed, "https://example.com");
 
-	assert.strictEqual(result.title, "Twitter Title")
-	assert.strictEqual(result.description, "Twitter Desc")
-	assert.strictEqual(result.image, "https://example.com/twitter.png")
-	assert.strictEqual(result.twitterCard, "summary")
-})
+	assert.strictEqual(result.title, "Twitter Title");
+	assert.strictEqual(result.description, "Twitter Desc");
+	assert.strictEqual(result.image, "https://example.com/twitter.png");
+	assert.strictEqual(result.twitterCard, "summary");
+});
 
 test("extract fallback to html", () => {
 	const parsed = {
@@ -107,17 +107,17 @@ test("extract fallback to html", () => {
 		ogAudio: null,
 		htmlLang: null,
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com")
+	const result = extract(parsed, "https://example.com");
 
-	assert.strictEqual(result.title, "HTML Title")
-	assert.strictEqual(result.description, "HTML Description")
-	assert.strictEqual(result.favicon, "https://example.com/favicon.ico")
-	assert.strictEqual(result.themeColor, "#000")
-	assert.deepStrictEqual(result.keywords, ["test", "keywords"])
-	assert.strictEqual(result.author, "Author Name")
-})
+	assert.strictEqual(result.title, "HTML Title");
+	assert.strictEqual(result.description, "HTML Description");
+	assert.strictEqual(result.favicon, "https://example.com/favicon.ico");
+	assert.strictEqual(result.themeColor, "#000");
+	assert.deepStrictEqual(result.keywords, ["test", "keywords"]);
+	assert.strictEqual(result.author, "Author Name");
+});
 
 test("resolve relative urls", () => {
 	const parsed = {
@@ -146,14 +146,14 @@ test("resolve relative urls", () => {
 		ogAudio: null,
 		htmlLang: null,
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com/page")
+	const result = extract(parsed, "https://example.com/page");
 
-	assert.strictEqual(result.image, "https://example.com/images/og.png")
-	assert.strictEqual(result.favicon, "https://example.com/apple-icon.png")
-	assert.strictEqual(result.video, "https://example.com/video.mp4")
-})
+	assert.strictEqual(result.image, "https://example.com/images/og.png");
+	assert.strictEqual(result.favicon, "https://example.com/apple-icon.png");
+	assert.strictEqual(result.video, "https://example.com/video.mp4");
+});
 
 test("resolve protocol-relative urls", () => {
 	const parsed = {
@@ -182,12 +182,12 @@ test("resolve protocol-relative urls", () => {
 		ogAudio: null,
 		htmlLang: null,
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com")
+	const result = extract(parsed, "https://example.com");
 
-	assert.strictEqual(result.image, "https://cdn.example.com/image.png")
-})
+	assert.strictEqual(result.image, "https://cdn.example.com/image.png");
+});
 
 test("default favicon", () => {
 	const parsed = {
@@ -216,14 +216,14 @@ test("default favicon", () => {
 		ogAudio: null,
 		htmlLang: null,
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com/page")
+	const result = extract(parsed, "https://example.com/page");
 
-	assert.strictEqual(result.favicon, "https://example.com/favicon.ico")
-	assert.strictEqual(result.domain, "example.com")
-	assert.strictEqual(result.siteName, "example.com")
-})
+	assert.strictEqual(result.favicon, "https://example.com/favicon.ico");
+	assert.strictEqual(result.domain, "example.com");
+	assert.strictEqual(result.siteName, "example.com");
+});
 
 test("detect content type video", () => {
 	const parsed = {
@@ -252,12 +252,12 @@ test("detect content type video", () => {
 		ogAudio: null,
 		htmlLang: null,
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com")
+	const result = extract(parsed, "https://example.com");
 
-	assert.strictEqual(result.contentType, "video")
-})
+	assert.strictEqual(result.contentType, "video");
+});
 
 test("detect content type article by published time", () => {
 	const parsed = {
@@ -286,12 +286,12 @@ test("detect content type article by published time", () => {
 		ogAudio: null,
 		htmlLang: null,
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com")
+	const result = extract(parsed, "https://example.com");
 
-	assert.strictEqual(result.contentType, "article")
-})
+	assert.strictEqual(result.contentType, "article");
+});
 
 test("language from locale fallback", () => {
 	const parsed = {
@@ -320,10 +320,10 @@ test("language from locale fallback", () => {
 		ogAudio: null,
 		htmlLang: null,
 		contentLanguage: null,
-	}
+	};
 
-	const result = extract(parsed, "https://example.com")
+	const result = extract(parsed, "https://example.com");
 
-	assert.strictEqual(result.lang, "fr")
-	assert.strictEqual(result.locale, "fr_FR")
-})
+	assert.strictEqual(result.lang, "fr");
+	assert.strictEqual(result.locale, "fr_FR");
+});

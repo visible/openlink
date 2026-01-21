@@ -77,7 +77,8 @@ html.dark a.get-started {
 	color: black;
 }
 
-code, pre {
+code,
+pre {
 	font-family: var(--font-geist-mono), ui-monospace, monospace;
 }
 

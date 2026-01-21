@@ -1,6 +1,6 @@
 # openlink
 
-Edge-first link preview. Zero dependencies, ~2kb gzipped.
+Edge-first link preview. Zero dependencies, ~6kb gzipped.
 
 ```bash
 npm install openlink

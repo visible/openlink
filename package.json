@@ -1,17 +1,19 @@
 {
-  "name": "olm",
-  "private": true,
-  "packageManager": "bun@1.2.20",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
-  "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "test": "turbo test"
-  },
-  "devDependencies": {
-    "turbo": "^2.7.5"
-  }
+	"name": "olm",
+	"private": true,
+	"packageManager": "bun@1.2.20",
+	"workspaces": ["packages/*", "apps/*"],
+	"scripts": {
+		"dev": "turbo dev",
+		"build": "turbo build",
+		"test": "turbo test",
+		"lint": "biome check .",
+		"format": "biome format --write .",
+		"typecheck": "tsc -p packages/openlink/tsconfig.json"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.0",
+		"turbo": "^2.7.5",
+		"typescript": "^5.7.0"
+	}
 }

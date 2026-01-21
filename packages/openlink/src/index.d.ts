@@ -255,7 +255,7 @@ export class PreviewError extends Error {
 	constructor(
 		message: string,
 		code: PreviewError["code"],
-		options?: { status?: number; cause?: Error }
+		options?: { status?: number; cause?: Error },
 	);
 }
 
@@ -278,10 +278,7 @@ export class PreviewError extends Error {
  * })
  * ```
  */
-export function preview(
-	url: string,
-	options?: PreviewOptions
-): Promise<PreviewResult>;
+export function preview(url: string, options?: PreviewOptions): Promise<PreviewResult>;
 
 /**
  * Parse HTML string for Open Graph, Twitter Card, and standard meta tags
@@ -333,7 +330,7 @@ export function normalizeUrl(url: string, base?: string): string;
  */
 export function fetchOembed(
 	url: string,
-	options?: { fetch?: typeof fetch; timeout?: number }
+	options?: { fetch?: typeof fetch; timeout?: number },
 ): Promise<OembedResult | null>;
 
 /**
@@ -382,15 +379,12 @@ export interface RetryOptions {
 
 export function withRetry<T>(
 	fn: (attempt: number) => Promise<T>,
-	options?: RetryOptions
+	options?: RetryOptions,
 ): Promise<T>;
 
 export function isRetryable(error: PreviewError): boolean;
 
-export function createProxyFetch(
-	proxyUrl: string,
-	baseFetch?: typeof fetch
-): typeof fetch;
+export function createProxyFetch(proxyUrl: string, baseFetch?: typeof fetch): typeof fetch;
 
 export function corsProxy(url: string): string;
 
@@ -416,7 +410,7 @@ export function memoryCache(): CacheStorage & { clear(): void };
 
 export function withCache(
 	cache: Cache,
-	previewFn: typeof preview
+	previewFn: typeof preview,
 ): (url: string, options?: PreviewOptions & { cacheTtl?: number }) => Promise<PreviewResult>;
 
 export interface ImageSize {
@@ -427,5 +421,5 @@ export interface ImageSize {
 
 export function getImageSize(
 	url: string,
-	options?: { fetch?: typeof fetch; timeout?: number }
+	options?: { fetch?: typeof fetch; timeout?: number },
 ): Promise<ImageSize | null>;

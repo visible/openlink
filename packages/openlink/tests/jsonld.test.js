@@ -1,6 +1,6 @@
-import { test } from "node:test"
-import assert from "node:assert"
-import { parseJsonLd, extractJsonLd } from "../src/jsonld.js"
+import assert from "node:assert";
+import { test } from "node:test";
+import { extractJsonLd, parseJsonLd } from "../src/jsonld.js";
 
 test("parseJsonLd extracts single object", () => {
 	const html = `
@@ -11,13 +11,13 @@ test("parseJsonLd extracts single object", () => {
 				</script>
 			</head>
 		</html>
-	`
-	const result = parseJsonLd(html)
+	`;
+	const result = parseJsonLd(html);
 
-	assert.strictEqual(result.length, 1)
-	assert.strictEqual(result[0]["@type"], "Article")
-	assert.strictEqual(result[0].headline, "Test Article")
-})
+	assert.strictEqual(result.length, 1);
+	assert.strictEqual(result[0]["@type"], "Article");
+	assert.strictEqual(result[0].headline, "Test Article");
+});
 
 test("parseJsonLd extracts multiple scripts", () => {
 	const html = `
@@ -27,13 +27,13 @@ test("parseJsonLd extracts multiple scripts", () => {
 				<script type="application/ld+json">{"@type": "Organization"}</script>
 			</head>
 		</html>
-	`
-	const result = parseJsonLd(html)
+	`;
+	const result = parseJsonLd(html);
 
-	assert.strictEqual(result.length, 2)
-	assert.strictEqual(result[0]["@type"], "Article")
-	assert.strictEqual(result[1]["@type"], "Organization")
-})
+	assert.strictEqual(result.length, 2);
+	assert.strictEqual(result[0]["@type"], "Article");
+	assert.strictEqual(result[1]["@type"], "Organization");
+});
 
 test("parseJsonLd handles arrays", () => {
 	const html = `
@@ -44,13 +44,13 @@ test("parseJsonLd handles arrays", () => {
 				</script>
 			</head>
 		</html>
-	`
-	const result = parseJsonLd(html)
+	`;
+	const result = parseJsonLd(html);
 
-	assert.strictEqual(result.length, 2)
-	assert.strictEqual(result[0]["@type"], "Article")
-	assert.strictEqual(result[1]["@type"], "Person")
-})
+	assert.strictEqual(result.length, 2);
+	assert.strictEqual(result[0]["@type"], "Article");
+	assert.strictEqual(result[1]["@type"], "Person");
+});
 
 test("parseJsonLd ignores invalid json", () => {
 	const html = `
@@ -60,38 +60,38 @@ test("parseJsonLd ignores invalid json", () => {
 				<script type="application/ld+json">{"@type": "Valid"}</script>
 			</head>
 		</html>
-	`
-	const result = parseJsonLd(html)
+	`;
+	const result = parseJsonLd(html);
 
-	assert.strictEqual(result.length, 1)
-	assert.strictEqual(result[0]["@type"], "Valid")
-})
+	assert.strictEqual(result.length, 1);
+	assert.strictEqual(result[0]["@type"], "Valid");
+});
 
 test("parseJsonLd returns empty array for no jsonld", () => {
-	const html = "<html><head></head></html>"
-	const result = parseJsonLd(html)
+	const html = "<html><head></head></html>";
+	const result = parseJsonLd(html);
 
-	assert.deepStrictEqual(result, [])
-})
+	assert.deepStrictEqual(result, []);
+});
 
 test("extractJsonLd returns null for empty array", () => {
-	const result = extractJsonLd([])
-	assert.strictEqual(result, null)
-})
+	const result = extractJsonLd([]);
+	assert.strictEqual(result, null);
+});
 
 test("extractJsonLd extracts types", () => {
-	const items = [{ "@type": "Article" }, { "@type": "Organization" }]
-	const result = extractJsonLd(items)
+	const items = [{ "@type": "Article" }, { "@type": "Organization" }];
+	const result = extractJsonLd(items);
 
-	assert.deepStrictEqual(result.types, ["Article", "Organization"])
-})
+	assert.deepStrictEqual(result.types, ["Article", "Organization"]);
+});
 
 test("extractJsonLd handles array types", () => {
-	const items = [{ "@type": ["Article", "NewsArticle"] }]
-	const result = extractJsonLd(items)
+	const items = [{ "@type": ["Article", "NewsArticle"] }];
+	const result = extractJsonLd(items);
 
-	assert.deepStrictEqual(result.types, ["Article", "NewsArticle"])
-})
+	assert.deepStrictEqual(result.types, ["Article", "NewsArticle"]);
+});
 
 test("extractJsonLd extracts article", () => {
 	const items = [
@@ -105,20 +105,20 @@ test("extractJsonLd extracts article", () => {
 			dateModified: "2024-01-16",
 			image: "https://example.com/image.png",
 		},
-	]
-	const result = extractJsonLd(items)
+	];
+	const result = extractJsonLd(items);
 
-	assert.strictEqual(result.article.headline, "Test Headline")
-	assert.strictEqual(result.article.description, "Test Description")
-	assert.strictEqual(result.article.author, "John Doe")
+	assert.strictEqual(result.article.headline, "Test Headline");
+	assert.strictEqual(result.article.description, "Test Description");
+	assert.strictEqual(result.article.author, "John Doe");
 	assert.deepStrictEqual(result.article.publisher, {
 		name: "News Site",
 		logo: "https://example.com/logo.png",
-	})
-	assert.strictEqual(result.article.datePublished, "2024-01-15")
-	assert.strictEqual(result.article.dateModified, "2024-01-16")
-	assert.strictEqual(result.article.image, "https://example.com/image.png")
-})
+	});
+	assert.strictEqual(result.article.datePublished, "2024-01-15");
+	assert.strictEqual(result.article.dateModified, "2024-01-16");
+	assert.strictEqual(result.article.image, "https://example.com/image.png");
+});
 
 test("extractJsonLd extracts product", () => {
 	const items = [
@@ -135,20 +135,20 @@ test("extractJsonLd extracts product", () => {
 			},
 			aggregateRating: { ratingValue: 4.5, reviewCount: 100 },
 		},
-	]
-	const result = extractJsonLd(items)
+	];
+	const result = extractJsonLd(items);
 
-	assert.strictEqual(result.product.name, "Test Product")
-	assert.strictEqual(result.product.description, "Product description")
-	assert.strictEqual(result.product.image, "https://example.com/product.png")
-	assert.strictEqual(result.product.brand, "Brand Name")
+	assert.strictEqual(result.product.name, "Test Product");
+	assert.strictEqual(result.product.description, "Product description");
+	assert.strictEqual(result.product.image, "https://example.com/product.png");
+	assert.strictEqual(result.product.brand, "Brand Name");
 	assert.deepStrictEqual(result.product.price, {
 		amount: "99.99",
 		currency: "USD",
 		availability: "InStock",
-	})
-	assert.deepStrictEqual(result.product.rating, { value: 4.5, count: 100 })
-})
+	});
+	assert.deepStrictEqual(result.product.rating, { value: 4.5, count: 100 });
+});
 
 test("extractJsonLd extracts organization", () => {
 	const items = [
@@ -158,13 +158,13 @@ test("extractJsonLd extracts organization", () => {
 			url: "https://example.com",
 			logo: "https://example.com/logo.png",
 		},
-	]
-	const result = extractJsonLd(items)
+	];
+	const result = extractJsonLd(items);
 
-	assert.strictEqual(result.organization.name, "Example Corp")
-	assert.strictEqual(result.organization.url, "https://example.com")
-	assert.strictEqual(result.organization.logo, "https://example.com/logo.png")
-})
+	assert.strictEqual(result.organization.name, "Example Corp");
+	assert.strictEqual(result.organization.url, "https://example.com");
+	assert.strictEqual(result.organization.logo, "https://example.com/logo.png");
+});
 
 test("extractJsonLd extracts video", () => {
 	const items = [
@@ -176,15 +176,15 @@ test("extractJsonLd extracts video", () => {
 			duration: "PT5M30S",
 			uploadDate: "2024-01-15",
 		},
-	]
-	const result = extractJsonLd(items)
+	];
+	const result = extractJsonLd(items);
 
-	assert.strictEqual(result.video.name, "Test Video")
-	assert.strictEqual(result.video.description, "Video description")
-	assert.strictEqual(result.video.thumbnail, "https://example.com/thumb.png")
-	assert.strictEqual(result.video.duration, "PT5M30S")
-	assert.strictEqual(result.video.uploadDate, "2024-01-15")
-})
+	assert.strictEqual(result.video.name, "Test Video");
+	assert.strictEqual(result.video.description, "Video description");
+	assert.strictEqual(result.video.thumbnail, "https://example.com/thumb.png");
+	assert.strictEqual(result.video.duration, "PT5M30S");
+	assert.strictEqual(result.video.uploadDate, "2024-01-15");
+});
 
 test("extractJsonLd extracts breadcrumbs", () => {
 	const items = [
@@ -195,26 +195,26 @@ test("extractJsonLd extracts breadcrumbs", () => {
 				{ position: 1, name: "Home", item: "https://example.com" },
 			],
 		},
-	]
-	const result = extractJsonLd(items)
+	];
+	const result = extractJsonLd(items);
 
-	assert.strictEqual(result.breadcrumbs.length, 2)
-	assert.strictEqual(result.breadcrumbs[0].name, "Home")
-	assert.strictEqual(result.breadcrumbs[0].url, "https://example.com")
-	assert.strictEqual(result.breadcrumbs[1].name, "Category")
-	assert.strictEqual(result.breadcrumbs[1].url, "https://example.com/cat")
-})
+	assert.strictEqual(result.breadcrumbs.length, 2);
+	assert.strictEqual(result.breadcrumbs[0].name, "Home");
+	assert.strictEqual(result.breadcrumbs[0].url, "https://example.com");
+	assert.strictEqual(result.breadcrumbs[1].name, "Category");
+	assert.strictEqual(result.breadcrumbs[1].url, "https://example.com/cat");
+});
 
 test("extractJsonLd handles string author", () => {
-	const items = [{ "@type": "Article", author: "Jane Doe" }]
-	const result = extractJsonLd(items)
+	const items = [{ "@type": "Article", author: "Jane Doe" }];
+	const result = extractJsonLd(items);
 
-	assert.strictEqual(result.article.author, "Jane Doe")
-})
+	assert.strictEqual(result.article.author, "Jane Doe");
+});
 
 test("extractJsonLd handles array authors", () => {
-	const items = [{ "@type": "Article", author: [{ name: "John" }, { name: "Jane" }] }]
-	const result = extractJsonLd(items)
+	const items = [{ "@type": "Article", author: [{ name: "John" }, { name: "Jane" }] }];
+	const result = extractJsonLd(items);
 
-	assert.strictEqual(result.article.author, "John, Jane")
-})
+	assert.strictEqual(result.article.author, "John, Jane");
+});

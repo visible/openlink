@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { type Locale } from "../i18n/translations";
 import { useI18n } from "../i18n/context";
+import type { Locale } from "../i18n/translations";
 
 const languages: { code: Locale; label: string }[] = [
 	{ code: "en", label: "English" },
@@ -44,7 +44,15 @@ export function LanguageSelector() {
 				onClick={() => setOpen(!open)}
 				className="flex items-center gap-2 px-2 py-1 text-xs border border-neutral-300 dark:border-neutral-700 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
 			>
-				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+				<svg
+					width="12"
+					height="12"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					aria-hidden="true"
+				>
 					<circle cx="12" cy="12" r="10" />
 					<path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
 				</svg>
@@ -62,7 +70,15 @@ export function LanguageSelector() {
 						>
 							<span>{lang.label}</span>
 							{lang.code === locale && (
-								<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+								<svg
+									width="10"
+									height="10"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="3"
+									aria-hidden="true"
+								>
 									<polyline points="20 6 9 17 4 12" />
 								</svg>
 							)}

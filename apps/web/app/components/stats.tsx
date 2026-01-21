@@ -6,8 +6,8 @@ function parseSize(size: string | null | undefined): number {
 	if (!size || typeof size !== "string") return 0;
 	const match = size.match(/([\d.]+)\s*(b|kb|mb|gb)?/i);
 	if (!match) return 0;
-	const value = parseFloat(match[1]);
-	if (isNaN(value) || value < 0) return 0;
+	const value = Number.parseFloat(match[1]);
+	if (Number.isNaN(value) || value < 0) return 0;
 	const unit = (match[2] || "kb").toLowerCase();
 	const multipliers: Record<string, number> = { b: 0.001, kb: 1, mb: 1000, gb: 1000000 };
 	return value * (multipliers[unit] || 1);
@@ -15,8 +15,8 @@ function parseSize(size: string | null | undefined): number {
 
 function parseDeps(deps: string | number | null | undefined): number {
 	if (deps === null || deps === undefined) return 0;
-	const num = typeof deps === "number" ? deps : parseInt(String(deps));
-	if (isNaN(num) || num < 0) return 0;
+	const num = typeof deps === "number" ? deps : Number.parseInt(String(deps));
+	if (Number.isNaN(num) || num < 0) return 0;
 	return Math.min(num, 6);
 }
 
@@ -24,8 +24,8 @@ function parseTime(time: string | null | undefined): number {
 	if (!time || typeof time !== "string") return 0;
 	const match = time.match(/([\d.]+)\s*(μs|us|ms|s)?/i);
 	if (!match) return 0;
-	const value = parseFloat(match[1]);
-	if (isNaN(value) || value < 0) return 0;
+	const value = Number.parseFloat(match[1]);
+	if (Number.isNaN(value) || value < 0) return 0;
 	const unit = (match[2] || "ms").toLowerCase();
 	const multipliers: Record<string, number> = { μs: 0.001, us: 0.001, ms: 1, s: 1000 };
 	return value * (multipliers[unit] || 1);
@@ -40,7 +40,7 @@ function BundleViz({ sizeKb }: { sizeKb: number }) {
 			([entry]) => {
 				if (entry.isIntersecting) setVisible(true);
 			},
-			{ threshold: 0.3 }
+			{ threshold: 0.3 },
 		);
 		if (ref.current) observer.observe(ref.current);
 		return () => observer.disconnect();
@@ -81,7 +81,7 @@ function DepsViz({ deps }: { deps: number }) {
 			([entry]) => {
 				if (entry.isIntersecting) setVisible(true);
 			},
-			{ threshold: 0.3 }
+			{ threshold: 0.3 },
 		);
 		if (ref.current) observer.observe(ref.current);
 		return () => observer.disconnect();
@@ -121,7 +121,11 @@ function DepsViz({ deps }: { deps: number }) {
 								y1="60"
 								x2={x}
 								y2={y}
-								className={isActive ? "stroke-black dark:stroke-white" : "stroke-neutral-200 dark:stroke-neutral-800"}
+								className={
+									isActive
+										? "stroke-black dark:stroke-white"
+										: "stroke-neutral-200 dark:stroke-neutral-800"
+								}
 								strokeWidth="1"
 								strokeDasharray={isActive ? "0" : "4 4"}
 								style={{
@@ -134,7 +138,11 @@ function DepsViz({ deps }: { deps: number }) {
 								cx={x}
 								cy={y}
 								r="4"
-								className={isActive ? "fill-black dark:fill-white" : "stroke-neutral-300 dark:stroke-neutral-700 fill-none"}
+								className={
+									isActive
+										? "fill-black dark:fill-white"
+										: "stroke-neutral-300 dark:stroke-neutral-700 fill-none"
+								}
 								strokeWidth={isActive ? 0 : 1}
 								strokeDasharray={isActive ? "0" : "2 2"}
 								style={{
@@ -160,7 +168,7 @@ function ParseViz({ timeMs }: { timeMs: number }) {
 			([entry]) => {
 				if (entry.isIntersecting) setVisible(true);
 			},
-			{ threshold: 0.3 }
+			{ threshold: 0.3 },
 		);
 		if (ref.current) observer.observe(ref.current);
 		return () => observer.disconnect();

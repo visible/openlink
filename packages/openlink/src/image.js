@@ -35,12 +35,7 @@ function detectSize(bytes) {
 }
 
 function isPng(bytes) {
-	return (
-		bytes[0] === 0x89 &&
-		bytes[1] === 0x50 &&
-		bytes[2] === 0x4e &&
-		bytes[3] === 0x47
-	);
+	return bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
 }
 
 function isJpeg(bytes) {
@@ -48,12 +43,7 @@ function isJpeg(bytes) {
 }
 
 function isGif(bytes) {
-	return (
-		bytes[0] === 0x47 &&
-		bytes[1] === 0x49 &&
-		bytes[2] === 0x46 &&
-		bytes[3] === 0x38
-	);
+	return bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38;
 }
 
 function isWebp(bytes) {

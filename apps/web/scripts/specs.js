@@ -1,8 +1,8 @@
-import { readFileSync, writeFileSync, existsSync } from "fs";
-import { gzipSync } from "zlib";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgPath = join(__dirname, "../../../packages/openlink");
@@ -29,13 +29,13 @@ function getBundleSize() {
 		const entryPoint = join(pkgPath, "src/index.js");
 		const result = execSync(
 			`bunx esbuild ${entryPoint} --bundle --minify --format=esm --platform=neutral`,
-			{ encoding: "utf-8", cwd: pkgPath }
+			{ encoding: "utf-8", cwd: pkgPath },
 		);
 		const gzipped = gzipSync(result);
 		return gzipped.length;
 	} catch {
 		const files = ["index.js", "parse.js", "fetch.js"]
-			.map(f => join(pkgPath, "src", f))
+			.map((f) => join(pkgPath, "src", f))
 			.filter(existsSync);
 
 		let total = 0;
@@ -82,7 +82,7 @@ function getParseTime() {
 		const result = execSync("node _bench.js", { cwd: pkgPath, encoding: "utf-8" });
 		execSync("rm _bench.js", { cwd: pkgPath });
 
-		const ms = parseFloat(result.trim());
+		const ms = Number.parseFloat(result.trim());
 		if (ms < 1) return `${(ms * 1000).toFixed(0)}μs`;
 		return `${ms.toFixed(1)}ms`;
 	} catch {
@@ -104,5 +104,5 @@ const specs = {
 	updated: new Date().toISOString().split("T")[0],
 };
 
-writeFileSync(specsPath, JSON.stringify(specs, null, "\t") + "\n");
+writeFileSync(specsPath, `${JSON.stringify(specs, null, "\t")}\n`);
 console.log("specs:", specs);

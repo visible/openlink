@@ -1,6 +1,18 @@
-const og = (p) => new RegExp(`<meta[^>]*(?:property=["']${p}["'][^>]*content=["']([^"']*)["']|content=["']([^"']*)["'][^>]*property=["']${p}["'])[^>]*>`, "i");
-const meta = (n) => new RegExp(`<meta[^>]*(?:name=["']${n}["'][^>]*content=["']([^"']*)["']|content=["']([^"']*)["'][^>]*name=["']${n}["'])[^>]*>`, "i");
-const link = (r) => new RegExp(`<link[^>]*(?:rel=["']${r}["'][^>]*href=["']([^"']*)["']|href=["']([^"']*)["'][^>]*rel=["']${r}["'])[^>]*>`, "i");
+const og = (p) =>
+	new RegExp(
+		`<meta[^>]*(?:property=["']${p}["'][^>]*content=["']([^"']*)["']|content=["']([^"']*)["'][^>]*property=["']${p}["'])[^>]*>`,
+		"i",
+	);
+const meta = (n) =>
+	new RegExp(
+		`<meta[^>]*(?:name=["']${n}["'][^>]*content=["']([^"']*)["']|content=["']([^"']*)["'][^>]*name=["']${n}["'])[^>]*>`,
+		"i",
+	);
+const link = (r) =>
+	new RegExp(
+		`<link[^>]*(?:rel=["']${r}["'][^>]*href=["']([^"']*)["']|href=["']([^"']*)["'][^>]*rel=["']${r}["'])[^>]*>`,
+		"i",
+	);
 
 const patterns = {
 	ogTitle: og("og:title"),
@@ -33,7 +45,8 @@ const patterns = {
 	canonical: link("canonical"),
 	title: /<title[^>]*>([^<]*)<\/title>/i,
 	htmlLang: /<html[^>]*\slang=["']([^"']*)["'][^>]*>/i,
-	contentLanguage: /<meta[^>]*http-equiv=["']content-language["'][^>]*content=["']([^"']*)["'][^>]*>/i,
+	contentLanguage:
+		/<meta[^>]*http-equiv=["']content-language["'][^>]*content=["']([^"']*)["'][^>]*>/i,
 };
 
 const entities = {
