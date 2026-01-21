@@ -2,7 +2,7 @@
 
 > Link previews from any URL. Zero dependencies, edge-native, under 5kb.
 
-OpenLink is a modern link preview library built for the edge. Extract Open Graph metadata, favicons, and rich previews from any URL.
+OpenLink is a modern link preview library built for the edge. Extract Open Graph metadata, favicons, oEmbed data, and rich previews from any URL.
 
 ## Documentation
 
@@ -12,6 +12,7 @@ OpenLink is a modern link preview library built for the edge. Extract Open Graph
 - [API Reference](/docs/api): Complete reference for preview, parse, extract functions
 - [Preview API](/docs/preview): Hosted API endpoint reference
 - [Favicon API](/docs/favicon): Extract favicons from any domain
+- [oEmbed](/docs/oembed): Extract embeds from YouTube, Twitter, Spotify, etc.
 - [TypeScript](/docs/typescript): Full type definitions and interfaces
 - [Edge Runtimes](/docs/edge): Deploy on Cloudflare Workers, Vercel Edge, Deno, Bun
 - [AI Tools](/docs/ai): Use openlink as a tool for LLMs and AI agents
@@ -39,6 +40,7 @@ curl "https://openlink.sh/api/preview?url=https://github.com"
 - Edge native (Cloudflare Workers, Vercel Edge, Deno, Bun)
 - TypeScript with full type safety
 - Under 5kb gzipped
+- oEmbed support (YouTube, Twitter, Spotify, Vimeo, TikTok, etc.)
 - Smart caching with stale-while-revalidate
 - AI/LLM tool compatible
 

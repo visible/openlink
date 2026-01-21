@@ -1,0 +1,131 @@
+---
+title: oEmbed
+description: Extract embed data from YouTube, Twitter, Spotify, and more.
+---
+
+OpenLink supports oEmbed for rich embeds from popular platforms.
+
+## Supported Providers
+
+| Provider | URL Pattern |
+|----------|-------------|
+| YouTube | youtube.com/watch, youtu.be |
+| Vimeo | vimeo.com |
+| Twitter/X | twitter.com, x.com |
+| Spotify | open.spotify.com |
+| TikTok | tiktok.com |
+| Instagram | instagram.com |
+| CodePen | codepen.io |
+| CodeSandbox | codesandbox.io |
+| Figma | figma.com |
+| SoundCloud | soundcloud.com |
+
+## Usage
+
+### With preview()
+
+```typescript
+import { preview } from "openlink"
+
+const data = await preview("https://www.youtube.com/watch?v=dQw4w9WgXcQ", {
+  includeOembed: true
+})
+
+console.log(data.title) // Page title
+console.log(data.oembed) // oEmbed data
+```
+
+### Standalone
+
+```typescript
+import { fetchOembed, hasOembedSupport } from "openlink"
+
+if (hasOembedSupport(url)) {
+  const oembed = await fetchOembed(url)
+  console.log(oembed.html) // Embed HTML
+}
+```
+
+## Response
+
+```typescript
+interface OembedResult {
+  provider: string      // "youtube", "twitter", etc.
+  type: string          // "video", "rich", "photo", "link"
+  title: string | null
+  author: string | null
+  authorUrl: string | null
+  thumbnail: string | null
+  thumbnailWidth: number | null
+  thumbnailHeight: number | null
+  html: string | null   // Embed HTML code
+  width: number | null
+  height: number | null
+}
+```
+
+## Examples
+
+### YouTube
+
+```typescript
+const data = await preview("https://www.youtube.com/watch?v=dQw4w9WgXcQ", {
+  includeOembed: true
+})
+
+// data.oembed = {
+//   provider: "youtube",
+//   type: "video",
+//   title: "Rick Astley - Never Gonna Give You Up",
+//   author: "Rick Astley",
+//   thumbnail: "https://i.ytimg.com/vi/...",
+//   html: "<iframe ...></iframe>",
+//   width: 480,
+//   height: 270
+// }
+```
+
+### Spotify
+
+```typescript
+const data = await preview("https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT", {
+  includeOembed: true
+})
+
+// data.oembed = {
+//   provider: "spotify",
+//   type: "rich",
+//   title: "Never Gonna Give You Up",
+//   thumbnail: "https://i.scdn.co/image/...",
+//   html: "<iframe ...></iframe>"
+// }
+```
+
+### Check Support
+
+```typescript
+import { hasOembedSupport, detectProvider } from "openlink"
+
+hasOembedSupport("https://youtube.com/watch?v=123") // true
+hasOembedSupport("https://github.com") // false
+
+const provider = detectProvider("https://vimeo.com/123")
+// { name: "vimeo", pattern: /.../ }
+```
+
+## Rendering Embeds
+
+The `html` field contains the embed code. Render it safely:
+
+```tsx
+function Embed({ html }: { html: string }) {
+  return (
+    <div
+      className="embed"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
+```
+
+For security, only render embed HTML from trusted sources (the oEmbed providers).

@@ -1,6 +1,6 @@
 {
   "name": "openlink",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Edge-first link preview. Zero dependencies.",
   "type": "module",
   "main": "src/index.js",
@@ -22,6 +22,8 @@
     "unfurl",
     "opengraph",
     "twitter-cards",
+    "oembed",
+    "youtube",
     "meta",
     "edge",
     "cloudflare",

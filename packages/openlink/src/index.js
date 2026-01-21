@@ -1,5 +1,6 @@
 import { parse } from "./parse.js";
 import { extract } from "./extract.js";
+import { fetchOembed, hasOembedSupport, detectProvider } from "./oembed.js";
 
 export class PreviewError extends Error {
 	constructor(message, code, options = {}) {
@@ -19,6 +20,7 @@ const defaults = {
 	},
 	followRedirects: true,
 	includeRaw: false,
+	includeOembed: false,
 	validateUrl: true,
 };
 
@@ -59,6 +61,10 @@ export async function preview(url, options = {}) {
 
 		if (opts.includeRaw) {
 			data.raw = parsed;
+		}
+
+		if (opts.includeOembed && hasOembedSupport(url)) {
+			data.oembed = await fetchOembed(url, { fetch: fetchFn, timeout: opts.timeout });
 		}
 
 		return data;
@@ -108,3 +114,4 @@ export function normalizeUrl(url, base) {
 
 export { parse } from "./parse.js";
 export { extract } from "./extract.js";
+export { fetchOembed, hasOembedSupport, detectProvider } from "./oembed.js";

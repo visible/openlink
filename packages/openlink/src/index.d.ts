@@ -30,10 +30,51 @@ export interface PreviewOptions {
 	includeRaw?: boolean;
 
 	/**
+	 * Include oEmbed data if available (YouTube, Twitter, Vimeo, etc.)
+	 * @default false
+	 */
+	includeOembed?: boolean;
+
+	/**
 	 * Validate that the URL is reachable before parsing
 	 * @default true
 	 */
 	validateUrl?: boolean;
+}
+
+export interface OembedResult {
+	/** Provider name (youtube, twitter, vimeo, etc.) */
+	provider: string;
+
+	/** Embed type (video, rich, photo, link) */
+	type: string;
+
+	/** Content title */
+	title: string | null;
+
+	/** Author/creator name */
+	author: string | null;
+
+	/** Author profile URL */
+	authorUrl: string | null;
+
+	/** Thumbnail image URL */
+	thumbnail: string | null;
+
+	/** Thumbnail width */
+	thumbnailWidth: number | null;
+
+	/** Thumbnail height */
+	thumbnailHeight: number | null;
+
+	/** HTML embed code */
+	html: string | null;
+
+	/** Embed width */
+	width: number | null;
+
+	/** Embed height */
+	height: number | null;
 }
 
 export interface PreviewResult {
@@ -87,6 +128,9 @@ export interface PreviewResult {
 
 	/** Raw parsed metadata (only if includeRaw: true) */
 	raw?: ParseResult;
+
+	/** oEmbed data (only if includeOembed: true and provider supported) */
+	oembed?: OembedResult | null;
 }
 
 export interface ParseResult {
@@ -197,3 +241,30 @@ export function isValidUrl(url: string): boolean;
  * Normalize a URL (add https:// if missing, resolve relative paths)
  */
 export function normalizeUrl(url: string, base?: string): string;
+
+/**
+ * Fetch oEmbed data for a URL
+ *
+ * @example
+ * ```ts
+ * import { fetchOembed } from 'openlink'
+ *
+ * const oembed = await fetchOembed('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+ * console.log(oembed.title) // Video title
+ * console.log(oembed.html) // Embed HTML
+ * ```
+ */
+export function fetchOembed(
+	url: string,
+	options?: { fetch?: typeof fetch; timeout?: number }
+): Promise<OembedResult | null>;
+
+/**
+ * Check if a URL has oEmbed support
+ */
+export function hasOembedSupport(url: string): boolean;
+
+/**
+ * Detect oEmbed provider for a URL
+ */
+export function detectProvider(url: string): { name: string; pattern: RegExp } | null;
