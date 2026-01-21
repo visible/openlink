@@ -14,19 +14,49 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-	title: "OpenLink",
-	description: "Link previews from any URL. Zero dependencies.",
+	title: {
+		default: "OpenLink - Edge-first link preview",
+		template: "%s | OpenLink",
+	},
+	description:
+		"Link preview library for the edge. Zero dependencies, ~2kb gzipped. Works on Cloudflare Workers, Vercel Edge, Deno, Bun.",
+	keywords: [
+		"link preview",
+		"unfurl",
+		"opengraph",
+		"twitter cards",
+		"meta tags",
+		"edge",
+		"cloudflare workers",
+		"vercel edge",
+		"deno",
+		"bun",
+	],
+	authors: [{ name: "visible" }],
+	creator: "visible",
+	metadataBase: new URL("https://openlink.sh"),
 	openGraph: {
-		title: "OpenLink",
-		description: "Link previews from any URL. Zero dependencies.",
+		title: "OpenLink - Edge-first link preview",
+		description:
+			"Link preview library for the edge. Zero dependencies, ~2kb gzipped.",
 		url: "https://openlink.sh",
 		siteName: "OpenLink",
 		type: "website",
+		images: [{ url: "/og", width: 1200, height: 630 }],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "OpenLink",
-		description: "Link previews from any URL. Zero dependencies.",
+		title: "OpenLink - Edge-first link preview",
+		description:
+			"Link preview library for the edge. Zero dependencies, ~2kb gzipped.",
+		images: ["/og"],
+	},
+	robots: {
+		index: true,
+		follow: true,
+	},
+	alternates: {
+		canonical: "https://openlink.sh",
 	},
 };
 
