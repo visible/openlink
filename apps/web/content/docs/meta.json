@@ -10,6 +10,8 @@
     "preview",
     "favicon",
     "oembed",
+    "retry",
+    "proxy",
     "---Advanced---",
     "typescript",
     "edge",

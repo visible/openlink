@@ -85,7 +85,11 @@ const data = await preview("https://github.com")
 | followRedirects | boolean | true | Whether to follow redirects |
 | fetch | typeof fetch | globalThis.fetch | Custom fetch function |
 | includeRaw | boolean | false | Include raw parsed metadata |
+| includeOembed | boolean | false | Include oEmbed data if available |
+| includeJsonLd | boolean | false | Include JSON-LD structured data |
 | validateUrl | boolean | true | Validate URL before fetching |
+| retry | number | 0 | Number of retry attempts |
+| retryDelay | number | 1000 | Initial retry delay in ms |
 
 Default headers:
 
@@ -179,6 +183,86 @@ normalizeUrl("github.com") // "https://github.com"
 normalizeUrl("/path", "https://example.com") // "https://example.com/path"
 ```
 
+## fetchOembed(url, options?)
+
+Fetch oEmbed data for supported providers (YouTube, Vimeo, Twitter, Spotify, etc).
+
+```typescript
+import { fetchOembed, hasOembedSupport, detectProvider } from "openlink"
+
+hasOembedSupport("https://youtube.com/watch?v=xxx") // true
+detectProvider("https://youtube.com/watch?v=xxx") // { name: "youtube", ... }
+
+const oembed = await fetchOembed("https://youtube.com/watch?v=xxx")
+console.log(oembed.title) // Video title
+console.log(oembed.html) // Embed HTML
+```
+
+Supported providers: YouTube, Vimeo, Twitter/X, Spotify, SoundCloud, TikTok, Instagram, CodePen, CodeSandbox, Figma.
+
+## parseJsonLd(html)
+
+Parse JSON-LD structured data from HTML.
+
+```typescript
+import { parseJsonLd, extractJsonLd } from "openlink"
+
+const items = parseJsonLd(html)
+const structured = extractJsonLd(items)
+
+console.log(structured.types) // ["Article", "Organization"]
+console.log(structured.article) // { headline, author, datePublished, ... }
+```
+
+Extracts: Article, Product, Organization, VideoObject, BreadcrumbList.
+
+## withRetry(fn, options?)
+
+Wrap async functions with retry logic and exponential backoff.
+
+```typescript
+import { withRetry, isRetryable } from "openlink"
+
+const result = await withRetry(
+  () => riskyOperation(),
+  { retries: 3, delay: 1000, backoff: 2 }
+)
+
+isRetryable(error) // true for TIMEOUT, FETCH_ERROR, HTTP 429/5xx
+```
+
+## Proxy Helpers
+
+Route requests through proxy services for CORS bypass.
+
+```typescript
+import { createProxyFetch, corsProxy, allOriginsProxy, preview } from "openlink"
+
+corsProxy("https://example.com")
+// https://corsproxy.io/?https%3A%2F%2Fexample.com
+
+const proxiedFetch = createProxyFetch("https://proxy.com/?url={url}")
+const data = await preview("https://github.com", { fetch: proxiedFetch })
+```
+
+## Cache Helpers
+
+Create cached preview wrappers.
+
+```typescript
+import { createCache, memoryCache, withCache, preview } from "openlink"
+
+const storage = memoryCache()
+const cache = createCache(storage)
+const cachedPreview = withCache(cache, preview)
+
+const data = await cachedPreview("https://github.com", {
+  cacheTtl: 3600000 // 1 hour
+})
+```
+
+Works with any storage backend (KV, Redis, etc) via get/set/delete interface.
+
 ---
 
 # TypeScript Types
@@ -196,7 +280,11 @@ interface PreviewOptions {
   followRedirects?: boolean
   fetch?: typeof fetch
   includeRaw?: boolean
+  includeOembed?: boolean
+  includeJsonLd?: boolean
   validateUrl?: boolean
+  retry?: number
+  retryDelay?: number
 }
 ```
 
@@ -223,6 +311,58 @@ interface PreviewResult {
   audio: string | null
   keywords: string[] | null
   raw?: ParseResult
+  oembed?: OembedResult
+  jsonLd?: JsonLdResult
+}
+
+## OembedResult
+
+oEmbed response data.
+
+```typescript
+interface OembedResult {
+  provider: string
+  type: string
+  title: string | null
+  author: string | null
+  authorUrl: string | null
+  thumbnail: string | null
+  thumbnailWidth: number | null
+  thumbnailHeight: number | null
+  html: string | null
+  width: number | null
+  height: number | null
+}
+```
+
+## JsonLdResult
+
+Parsed JSON-LD structured data.
+
+```typescript
+interface JsonLdResult {
+  types: string[]
+  data: Record<string, unknown>[]
+  article?: {
+    headline: string | null
+    description: string | null
+    author: string | null
+    publisher: { name: string | null; logo: string | null } | null
+    datePublished: string | null
+    dateModified: string | null
+    image: string | null
+  }
+  product?: {
+    name: string | null
+    description: string | null
+    image: string | null
+    brand: string | null
+    price: { amount: string | null; currency: string | null; availability: string | null } | null
+    rating: { value: number | null; count: number | null } | null
+  }
+  organization?: { name: string | null; url: string | null; logo: string | null }
+  video?: { name: string | null; description: string | null; thumbnail: string | null; duration: string | null; uploadDate: string | null }
+  breadcrumbs?: Array<{ name: string | null; url: string | null }>
 }
 ```
 

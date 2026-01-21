@@ -1,0 +1,97 @@
+---
+title: Retry
+description: Built-in retry logic with exponential backoff.
+---
+
+OpenLink includes retry functionality for handling transient failures.
+
+## Basic Usage
+
+```typescript
+import { preview } from "openlink"
+
+const data = await preview("https://example.com", {
+  retry: 3,
+  retryDelay: 1000
+})
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `retry` | `number` | `0` | Number of retry attempts |
+| `retryDelay` | `number` | `1000` | Initial delay between retries in ms |
+
+## Exponential Backoff
+
+Retry delay doubles after each attempt:
+
+```
+Attempt 1: immediate
+Attempt 2: 1000ms delay
+Attempt 3: 2000ms delay
+Attempt 4: 4000ms delay
+```
+
+## Retryable Errors
+
+Not all errors trigger retries. Only transient failures are retried:
+
+| Error Code | Retried | Description |
+|------------|---------|-------------|
+| `TIMEOUT` | Yes | Request timed out |
+| `FETCH_ERROR` | Yes | Network error |
+| `HTTP_ERROR` 429 | Yes | Rate limited |
+| `HTTP_ERROR` 5xx | Yes | Server error |
+| `HTTP_ERROR` 4xx | No | Client error |
+| `INVALID_URL` | No | Bad URL format |
+
+## Advanced Usage
+
+Use `withRetry` directly for custom retry logic:
+
+```typescript
+import { withRetry, isRetryable } from "openlink"
+
+const result = await withRetry(
+  async (attempt) => {
+    console.log(`Attempt ${attempt + 1}`)
+    return await riskyOperation()
+  },
+  {
+    retries: 5,
+    delay: 500,
+    backoff: 2,
+    shouldRetry: (error, attempt) => {
+      return attempt < 3 && isRetryable(error)
+    }
+  }
+)
+```
+
+## With Proxies
+
+Combine retry with proxy failover:
+
+```typescript
+import { preview, corsProxy, createProxyFetch } from "openlink"
+
+const proxies = [
+  "https://proxy1.example.com/?url={url}",
+  "https://proxy2.example.com/?url={url}"
+]
+
+let lastError
+for (const proxyUrl of proxies) {
+  try {
+    return await preview(url, {
+      fetch: createProxyFetch(proxyUrl),
+      retry: 2
+    })
+  } catch (err) {
+    lastError = err
+  }
+}
+throw lastError
+```

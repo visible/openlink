@@ -1,4 +1,4 @@
-import { preview, fetchOembed, hasOembedSupport, detectProvider } from './src/index.js'
+import { preview, fetchOembed, hasOembedSupport, detectProvider, parseJsonLd, extractJsonLd, corsProxy, allOriginsProxy, withRetry, isRetryable, PreviewError, createCache, memoryCache, withCache, cacheKey } from './src/index.js'
 
 const urls = [
 	'github.com',
@@ -53,6 +53,68 @@ async function run() {
 	} catch (err) {
 		console.log(`    error: ${err.message}`)
 	}
+
+	console.log('\n\njsonld tests:')
+	const jsonldUrls = [
+		'https://www.bbc.com/news',
+		'https://github.com',
+	]
+
+	for (const url of jsonldUrls) {
+		console.log(`\n  ${url}`)
+		try {
+			const result = await preview(url, { includeJsonLd: true })
+			if (result.jsonLd) {
+				console.log(`    types: ${result.jsonLd.types.join(', ') || 'none'}`)
+				console.log(`    items: ${result.jsonLd.data.length}`)
+			} else {
+				console.log(`    jsonLd: none`)
+			}
+		} catch (err) {
+			console.log(`    error: ${err.message}`)
+		}
+	}
+
+	console.log('\n\nproxy tests:')
+	console.log(`  corsProxy: ${corsProxy('https://example.com').slice(0, 50)}...`)
+	console.log(`  allOriginsProxy: ${allOriginsProxy('https://example.com').slice(0, 50)}...`)
+
+	console.log('\n\nretry tests:')
+	let attempts = 0
+	try {
+		await withRetry(async () => {
+			attempts++
+			if (attempts < 3) throw new Error('fail')
+			return 'success'
+		}, { retries: 3, delay: 100 })
+		console.log(`  withRetry: passed after ${attempts} attempts`)
+	} catch {
+		console.log(`  withRetry: failed`)
+	}
+
+	const timeoutErr = new PreviewError('timeout', 'TIMEOUT')
+	const invalidErr = new PreviewError('invalid', 'INVALID_URL')
+	console.log(`  isRetryable(TIMEOUT): ${isRetryable(timeoutErr)}`)
+	console.log(`  isRetryable(INVALID_URL): ${isRetryable(invalidErr)}`)
+
+	console.log('\n\ncache tests:')
+	const storage = memoryCache()
+	const cache = createCache(storage)
+
+	await cache.set('https://test.com', { title: 'Test', url: 'https://test.com' })
+	const cached = await cache.get('https://test.com')
+	console.log(`  set/get: ${cached?.title === 'Test' ? 'passed' : 'failed'}`)
+	console.log(`  cacheKey: ${cacheKey('https://test.com')}`)
+
+	let fetchCount = 0
+	const cachedPreview = withCache(cache, async (url) => {
+		fetchCount++
+		return { title: 'Fetched', url }
+	})
+
+	await cachedPreview('https://cached.com')
+	await cachedPreview('https://cached.com')
+	console.log(`  withCache: ${fetchCount === 1 ? 'passed (1 fetch for 2 calls)' : 'failed'}`)
 
 	console.log('\n\nall tests completed')
 }

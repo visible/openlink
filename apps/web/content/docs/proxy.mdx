@@ -1,0 +1,134 @@
+---
+title: Proxy
+description: Route requests through proxy services.
+---
+
+OpenLink supports routing requests through proxy services for CORS bypass or rate limit handling.
+
+## Built-in Proxies
+
+```typescript
+import { corsProxy, allOriginsProxy } from "openlink"
+
+corsProxy("https://example.com")
+// https://corsproxy.io/?https%3A%2F%2Fexample.com
+
+allOriginsProxy("https://example.com")
+// https://api.allorigins.win/raw?url=https%3A%2F%2Fexample.com
+```
+
+## Custom Proxy
+
+Use `createProxyFetch` for custom proxy services:
+
+```typescript
+import { createProxyFetch, preview } from "openlink"
+
+const proxiedFetch = createProxyFetch(
+  "https://your-proxy.com/?url={url}"
+)
+
+const data = await preview("https://github.com", {
+  fetch: proxiedFetch
+})
+```
+
+The `{url}` placeholder is replaced with the encoded target URL.
+
+## Browser Usage
+
+For browser environments where CORS is blocked:
+
+```typescript
+import { preview, corsProxy, createProxyFetch } from "openlink"
+
+const browserFetch = createProxyFetch(
+  corsProxy("{url}").replace("{url}", "{url}")
+)
+
+const data = await preview("https://github.com", {
+  fetch: browserFetch
+})
+```
+
+## Cloudflare Workers
+
+Use Cloudflare Workers as a proxy:
+
+```typescript
+export default {
+  async fetch(request) {
+    const url = new URL(request.url)
+    const target = url.searchParams.get("url")
+
+    if (!target) {
+      return new Response("Missing url", { status: 400 })
+    }
+
+    const response = await fetch(decodeURIComponent(target), {
+      headers: {
+        "User-Agent": "OpenLinkBot/1.0"
+      }
+    })
+
+    return new Response(response.body, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": response.headers.get("Content-Type")
+      }
+    })
+  }
+}
+```
+
+## Proxy Rotation
+
+Rotate between multiple proxies:
+
+```typescript
+import { createProxyFetch, preview } from "openlink"
+
+const proxies = [
+  "https://proxy1.example.com/?url={url}",
+  "https://proxy2.example.com/?url={url}",
+  "https://proxy3.example.com/?url={url}"
+]
+
+let index = 0
+
+function getProxiedFetch() {
+  const proxy = proxies[index % proxies.length]
+  index++
+  return createProxyFetch(proxy)
+}
+
+const data = await preview("https://github.com", {
+  fetch: getProxiedFetch()
+})
+```
+
+## Error Handling
+
+Handle proxy failures gracefully:
+
+```typescript
+import { preview, corsProxy, allOriginsProxy, createProxyFetch } from "openlink"
+
+async function previewWithFallback(url) {
+  const strategies = [
+    () => fetch,
+    () => createProxyFetch(corsProxy("{url}")),
+    () => createProxyFetch(allOriginsProxy("{url}"))
+  ]
+
+  for (const getFetch of strategies) {
+    try {
+      return await preview(url, { fetch: getFetch() })
+    } catch {
+      continue
+    }
+  }
+
+  throw new Error("All fetch strategies failed")
+}
+```

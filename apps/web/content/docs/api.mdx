@@ -29,7 +29,11 @@ const data = await preview("https://github.com")
 | `followRedirects` | `boolean` | `true` | Whether to follow redirects |
 | `fetch` | `typeof fetch` | `globalThis.fetch` | Custom fetch function |
 | `includeRaw` | `boolean` | `false` | Include raw parsed metadata |
+| `includeOembed` | `boolean` | `false` | Include oEmbed data if available |
+| `includeJsonLd` | `boolean` | `false` | Include JSON-LD structured data |
 | `validateUrl` | `boolean` | `true` | Validate URL before fetching |
+| `retry` | `number` | `0` | Number of retry attempts on failure |
+| `retryDelay` | `number` | `1000` | Initial delay between retries in ms |
 
 Default headers:
 
@@ -197,3 +201,147 @@ normalizeUrl("example.com/page") // "https://example.com/page"
 ### Returns
 
 Returns the normalized URL string.
+
+---
+
+## withRetry
+
+Wrap any async function with retry logic and exponential backoff.
+
+```typescript
+import { withRetry, isRetryable } from "openlink"
+
+const result = await withRetry(
+  () => fetch("https://example.com"),
+  { retries: 3, delay: 1000, backoff: 2 }
+)
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fn` | `(attempt: number) => Promise<T>` | Function to retry |
+| `options` | `RetryOptions` | Retry configuration |
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `retries` | `number` | `3` | Max retry attempts |
+| `delay` | `number` | `1000` | Initial delay in ms |
+| `backoff` | `number` | `2` | Backoff multiplier |
+| `shouldRetry` | `(error, attempt) => boolean` | `() => true` | Whether to retry |
+
+---
+
+## isRetryable
+
+Check if an error should be retried.
+
+```typescript
+import { isRetryable, PreviewError } from "openlink"
+
+const error = new PreviewError("timeout", "TIMEOUT")
+isRetryable(error) // true
+
+const invalid = new PreviewError("invalid", "INVALID_URL")
+isRetryable(invalid) // false
+```
+
+Retryable error codes: `TIMEOUT`, `FETCH_ERROR`, `HTTP_ERROR` (429 or 5xx).
+
+---
+
+## createProxyFetch
+
+Create a fetch function that routes requests through a proxy.
+
+```typescript
+import { createProxyFetch, preview } from "openlink"
+
+const proxiedFetch = createProxyFetch(
+  "https://proxy.example.com/?url={url}"
+)
+
+const data = await preview("https://github.com", {
+  fetch: proxiedFetch
+})
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `proxyUrl` | `string` | Proxy URL template with `{url}` placeholder |
+| `baseFetch` | `typeof fetch` | Base fetch function |
+
+---
+
+## corsProxy / allOriginsProxy
+
+Helper functions for common CORS proxy services.
+
+```typescript
+import { corsProxy, allOriginsProxy } from "openlink"
+
+corsProxy("https://example.com")
+// "https://corsproxy.io/?https%3A%2F%2Fexample.com"
+
+allOriginsProxy("https://example.com")
+// "https://api.allorigins.win/raw?url=https%3A%2F%2Fexample.com"
+```
+
+---
+
+## createCache
+
+Create a cache wrapper for preview results.
+
+```typescript
+import { createCache, memoryCache, preview } from "openlink"
+
+const storage = memoryCache()
+const cache = createCache(storage)
+
+await cache.set("https://example.com", result, 3600000)
+const cached = await cache.get("https://example.com")
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `storage` | `CacheStorage` | Storage backend with get/set/delete |
+
+---
+
+## withCache
+
+Wrap preview function with automatic caching.
+
+```typescript
+import { createCache, memoryCache, withCache, preview } from "openlink"
+
+const cache = createCache(memoryCache())
+const cachedPreview = withCache(cache, preview)
+
+const data = await cachedPreview("https://github.com", {
+  cacheTtl: 3600000
+})
+```
+
+---
+
+## memoryCache
+
+Simple in-memory cache storage for development and testing.
+
+```typescript
+import { memoryCache, createCache } from "openlink"
+
+const storage = memoryCache()
+const cache = createCache(storage)
+
+storage.clear()
+```

@@ -1,6 +1,8 @@
 import { parse } from "./parse.js";
 import { extract } from "./extract.js";
 import { fetchOembed, hasOembedSupport, detectProvider } from "./oembed.js";
+import { parseJsonLd, extractJsonLd } from "./jsonld.js";
+import { withRetry, isRetryable } from "./retry.js";
 
 export class PreviewError extends Error {
 	constructor(message, code, options = {}) {
@@ -21,12 +23,14 @@ const defaults = {
 	followRedirects: true,
 	includeRaw: false,
 	includeOembed: false,
+	includeJsonLd: false,
 	validateUrl: true,
+	retry: 0,
+	retryDelay: 1000,
 };
 
 export async function preview(url, options = {}) {
 	const opts = { ...defaults, ...options };
-	const fetchFn = opts.fetch || globalThis.fetch;
 
 	if (!url || typeof url !== "string") {
 		throw new PreviewError("URL is required", "INVALID_URL");
@@ -38,6 +42,21 @@ export async function preview(url, options = {}) {
 		throw new PreviewError("Invalid URL format", "INVALID_URL");
 	}
 
+	const doFetch = () => fetchPreview(url, opts);
+
+	if (opts.retry > 0) {
+		return withRetry(doFetch, {
+			retries: opts.retry,
+			delay: opts.retryDelay,
+			shouldRetry: isRetryable,
+		});
+	}
+
+	return doFetch();
+}
+
+async function fetchPreview(url, opts) {
+	const fetchFn = opts.fetch || globalThis.fetch;
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), opts.timeout);
 
@@ -65,6 +84,11 @@ export async function preview(url, options = {}) {
 
 		if (opts.includeOembed && hasOembedSupport(url)) {
 			data.oembed = await fetchOembed(url, { fetch: fetchFn, timeout: opts.timeout });
+		}
+
+		if (opts.includeJsonLd) {
+			const items = parseJsonLd(html);
+			data.jsonLd = extractJsonLd(items);
 		}
 
 		return data;
@@ -115,3 +139,7 @@ export function normalizeUrl(url, base) {
 export { parse } from "./parse.js";
 export { extract } from "./extract.js";
 export { fetchOembed, hasOembedSupport, detectProvider } from "./oembed.js";
+export { parseJsonLd, extractJsonLd } from "./jsonld.js";
+export { withRetry, isRetryable } from "./retry.js";
+export { createProxyFetch, corsProxy, allOriginsProxy } from "./proxy.js";
+export { createCache, cacheKey, memoryCache, withCache } from "./cache.js";

@@ -36,10 +36,28 @@ export interface PreviewOptions {
 	includeOembed?: boolean;
 
 	/**
+	 * Include JSON-LD structured data from the page
+	 * @default false
+	 */
+	includeJsonLd?: boolean;
+
+	/**
 	 * Validate that the URL is reachable before parsing
 	 * @default true
 	 */
 	validateUrl?: boolean;
+
+	/**
+	 * Number of retry attempts on failure
+	 * @default 0
+	 */
+	retry?: number;
+
+	/**
+	 * Initial delay between retries in milliseconds
+	 * @default 1000
+	 */
+	retryDelay?: number;
 }
 
 export interface OembedResult {
@@ -131,6 +149,57 @@ export interface PreviewResult {
 
 	/** oEmbed data (only if includeOembed: true and provider supported) */
 	oembed?: OembedResult | null;
+
+	/** JSON-LD structured data (only if includeJsonLd: true) */
+	jsonLd?: JsonLdResult | null;
+}
+
+export interface JsonLdResult {
+	/** Schema.org types found in the page */
+	types: string[];
+
+	/** Raw JSON-LD data */
+	data: Record<string, unknown>[];
+
+	/** Article data if present */
+	article?: {
+		headline: string | null;
+		description: string | null;
+		author: string | null;
+		publisher: { name: string | null; logo: string | null } | null;
+		datePublished: string | null;
+		dateModified: string | null;
+		image: string | null;
+	};
+
+	/** Product data if present */
+	product?: {
+		name: string | null;
+		description: string | null;
+		image: string | null;
+		brand: string | null;
+		price: { amount: string | null; currency: string | null; availability: string | null } | null;
+		rating: { value: number | null; count: number | null } | null;
+	};
+
+	/** Organization data if present */
+	organization?: {
+		name: string | null;
+		url: string | null;
+		logo: string | null;
+	};
+
+	/** Video data if present */
+	video?: {
+		name: string | null;
+		description: string | null;
+		thumbnail: string | null;
+		duration: string | null;
+		uploadDate: string | null;
+	};
+
+	/** Breadcrumb navigation if present */
+	breadcrumbs?: Array<{ name: string | null; url: string | null }>;
 }
 
 export interface ParseResult {
@@ -268,3 +337,76 @@ export function hasOembedSupport(url: string): boolean;
  * Detect oEmbed provider for a URL
  */
 export function detectProvider(url: string): { name: string; pattern: RegExp } | null;
+
+/**
+ * Parse JSON-LD structured data from HTML
+ *
+ * @example
+ * ```ts
+ * import { parseJsonLd } from 'openlink'
+ *
+ * const items = parseJsonLd(html)
+ * // Returns array of JSON-LD objects
+ * ```
+ */
+export function parseJsonLd(html: string): Record<string, unknown>[];
+
+/**
+ * Extract and normalize JSON-LD data
+ *
+ * @example
+ * ```ts
+ * import { parseJsonLd, extractJsonLd } from 'openlink'
+ *
+ * const items = parseJsonLd(html)
+ * const structured = extractJsonLd(items)
+ * console.log(structured.types) // ["Article", "Organization"]
+ * ```
+ */
+export function extractJsonLd(items: Record<string, unknown>[]): JsonLdResult | null;
+
+export interface RetryOptions {
+	retries?: number;
+	delay?: number;
+	backoff?: number;
+	shouldRetry?: (error: Error, attempt: number) => boolean;
+}
+
+export function withRetry<T>(
+	fn: (attempt: number) => Promise<T>,
+	options?: RetryOptions
+): Promise<T>;
+
+export function isRetryable(error: PreviewError): boolean;
+
+export function createProxyFetch(
+	proxyUrl: string,
+	baseFetch?: typeof fetch
+): typeof fetch;
+
+export function corsProxy(url: string): string;
+
+export function allOriginsProxy(url: string): string;
+
+export interface CacheStorage {
+	get(key: string): Promise<string | null> | string | null;
+	set(key: string, value: string): Promise<void> | void;
+	delete?(key: string): Promise<void> | void;
+}
+
+export interface Cache {
+	get(url: string): Promise<PreviewResult | null>;
+	set(url: string, value: PreviewResult, ttl?: number): Promise<void>;
+	delete(url: string): Promise<void>;
+}
+
+export function createCache(storage: CacheStorage): Cache;
+
+export function cacheKey(url: string): string;
+
+export function memoryCache(): CacheStorage & { clear(): void };
+
+export function withCache(
+	cache: Cache,
+	previewFn: typeof preview
+): (url: string, options?: PreviewOptions & { cacheTtl?: number }) => Promise<PreviewResult>;
