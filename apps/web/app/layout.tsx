@@ -4,6 +4,7 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
+import { JsonLd } from "./components/jsonld";
 import { ThemeColor } from "./components/themecolor";
 import { I18nProvider } from "./i18n/context";
 
@@ -68,6 +69,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 			className={`${GeistSans.variable} ${GeistMono.variable}`}
 			suppressHydrationWarning
 		>
+			<head>
+				<JsonLd />
+			</head>
 			<body className="bg-white dark:bg-neutral-950">
 				<RootProvider>
 					<ThemeColor />

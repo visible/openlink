@@ -1,0 +1,894 @@
+# OpenLink
+
+> Edge-first link preview library. Zero dependencies, ~2kb gzipped.
+
+OpenLink is a modern link preview library built for the edge. Extract Open Graph metadata, favicons, and rich previews from any URL with a simple API.
+
+Website: https://openlink.sh
+GitHub: https://github.com/visible/openlink
+npm: https://npmjs.com/package/openlink
+
+## Features
+
+- Zero dependencies - No bloat, just what you need
+- Edge native - Works on Cloudflare Workers, Vercel Edge, Deno, Bun
+- TypeScript - Full type safety out of the box
+- Tiny - Under 2kb gzipped
+- Smart caching - Built-in stale-while-revalidate support
+
+## Installation
+
+```bash
+npm install openlink
+# or
+bun add openlink
+# or
+pnpm add openlink
+```
+
+Requirements:
+- Node.js 18+ or any modern runtime (Bun, Deno, Cloudflare Workers)
+- ESM environment (OpenLink is ESM-only)
+
+## Quick Start
+
+```typescript
+import { preview } from "openlink"
+
+const data = await preview("https://github.com")
+
+console.log(data)
+// {
+//   title: "GitHub",
+//   description: "Where the world builds software",
+//   image: "https://github.githubassets.com/images/...",
+//   favicon: "https://github.com/favicon.ico",
+//   siteName: "GitHub"
+// }
+```
+
+## Hosted API
+
+Don't want to self-host? Use our free API at openlink.sh with built-in caching and no rate limits.
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com"
+```
+
+---
+
+# API Reference
+
+## preview(url, options?)
+
+The main function to fetch and parse link preview metadata from a URL.
+
+```typescript
+import { preview } from "openlink"
+
+const data = await preview("https://github.com")
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| url | string | The URL to fetch and parse |
+| options | PreviewOptions | Optional configuration |
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| timeout | number | 10000 | Request timeout in milliseconds |
+| headers | Record<string, string> | See below | Custom headers to send |
+| followRedirects | boolean | true | Whether to follow redirects |
+| fetch | typeof fetch | globalThis.fetch | Custom fetch function |
+| includeRaw | boolean | false | Include raw parsed metadata |
+| validateUrl | boolean | true | Validate URL before fetching |
+
+Default headers:
+
+```typescript
+{
+  "User-Agent": "OpenLinkBot/1.0 (+https://openlink.sh)",
+  "Accept": "text/html,application/xhtml+xml"
+}
+```
+
+### Examples
+
+Basic usage:
+
+```typescript
+const data = await preview("https://github.com")
+console.log(data.title)
+```
+
+With options:
+
+```typescript
+const data = await preview("https://github.com", {
+  timeout: 5000,
+  includeRaw: true,
+  headers: {
+    "Accept-Language": "en-US"
+  }
+})
+```
+
+## parse(html)
+
+Parse an HTML string for Open Graph, Twitter Card, and standard meta tags. Use this when you already have the HTML content.
+
+```typescript
+import { parse } from "openlink"
+
+const html = await fetch("https://example.com").then(r => r.text())
+const metadata = parse(html)
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| html | string | The HTML string to parse |
+
+### Returns
+
+Returns a ParseResult object with all extracted metadata fields.
+
+## extract(parsed, url)
+
+Extract and normalize metadata from a parsed result. Combines Open Graph, Twitter Card, and HTML meta tags with proper fallbacks.
+
+```typescript
+import { parse, extract } from "openlink"
+
+const parsed = parse(html)
+const result = extract(parsed, "https://example.com")
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| parsed | ParseResult | Output from parse() |
+| url | string | Original URL for resolving relative paths |
+
+## isValidUrl(url)
+
+Check if a string is a valid URL.
+
+```typescript
+import { isValidUrl } from "openlink"
+
+isValidUrl("https://github.com") // true
+isValidUrl("not-a-url") // false
+isValidUrl("github.com") // false (no protocol)
+```
+
+## normalizeUrl(url, base?)
+
+Normalize a URL by adding protocol if missing and resolving relative paths.
+
+```typescript
+import { normalizeUrl } from "openlink"
+
+normalizeUrl("github.com") // "https://github.com"
+normalizeUrl("/path", "https://example.com") // "https://example.com/path"
+```
+
+---
+
+# TypeScript Types
+
+OpenLink is written in TypeScript and includes complete type definitions.
+
+## PreviewOptions
+
+Configuration options for the preview function.
+
+```typescript
+interface PreviewOptions {
+  timeout?: number
+  headers?: Record<string, string>
+  followRedirects?: boolean
+  fetch?: typeof fetch
+  includeRaw?: boolean
+  validateUrl?: boolean
+}
+```
+
+## PreviewResult
+
+The normalized result returned by preview and extract.
+
+```typescript
+interface PreviewResult {
+  url: string
+  title: string | null
+  description: string | null
+  image: string | null
+  favicon: string
+  siteName: string
+  domain: string
+  type: string
+  author: string | null
+  publishedTime: string | null
+  themeColor: string | null
+  twitterCard: string | null
+  locale: string | null
+  video: string | null
+  audio: string | null
+  keywords: string[] | null
+  raw?: ParseResult
+}
+```
+
+## ParseResult
+
+Raw parsed metadata from HTML, returned by parse.
+
+```typescript
+interface ParseResult {
+  ogTitle: string | null
+  ogDescription: string | null
+  ogImage: string | null
+  ogImageWidth: string | null
+  ogImageHeight: string | null
+  ogImageAlt: string | null
+  ogType: string | null
+  ogSiteName: string | null
+  ogUrl: string | null
+  ogLocale: string | null
+  ogVideo: string | null
+  ogAudio: string | null
+  articleAuthor: string | null
+  articlePublishedTime: string | null
+  twitterTitle: string | null
+  twitterDescription: string | null
+  twitterImage: string | null
+  twitterCard: string | null
+  twitterSite: string | null
+  twitterCreator: string | null
+  title: string | null
+  description: string | null
+  favicon: string | null
+  appleTouchIcon: string | null
+  canonical: string | null
+  themeColor: string | null
+  keywords: string | null
+  author: string | null
+  robots: string | null
+}
+```
+
+## PreviewError
+
+Custom error class with error codes for programmatic handling.
+
+```typescript
+class PreviewError extends Error {
+  code: "INVALID_URL" | "TIMEOUT" | "FETCH_ERROR" | "HTTP_ERROR"
+  status?: number
+  cause?: Error
+}
+```
+
+### Error Codes
+
+| Code | Description |
+|------|-------------|
+| INVALID_URL | URL format is invalid |
+| TIMEOUT | Request timed out |
+| FETCH_ERROR | Network error |
+| HTTP_ERROR | Non-2xx HTTP status |
+
+### Example
+
+```typescript
+import { preview, PreviewError } from "openlink"
+
+try {
+  const data = await preview("https://example.com")
+} catch (error) {
+  if (error instanceof PreviewError) {
+    switch (error.code) {
+      case "TIMEOUT":
+        console.log("Request timed out")
+        break
+      case "HTTP_ERROR":
+        console.log(`HTTP ${error.status}`)
+        break
+      default:
+        console.log(error.message)
+    }
+  }
+}
+```
+
+---
+
+# Edge Runtimes
+
+OpenLink works on any JavaScript runtime with zero dependencies. No Node.js APIs required.
+
+## Vercel Edge Functions
+
+```typescript
+import { preview } from "openlink"
+
+export const config = {
+  runtime: "edge"
+}
+
+export default async function handler(request: Request) {
+  const url = new URL(request.url).searchParams.get("url")
+
+  if (!url) {
+    return new Response("Missing url parameter", { status: 400 })
+  }
+
+  const data = await preview(url)
+  return Response.json({ data })
+}
+```
+
+## Next.js App Router
+
+```typescript
+import { preview } from "openlink"
+
+export const runtime = "edge"
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const url = searchParams.get("url")
+
+  if (!url) {
+    return Response.json({ error: "Missing url" }, { status: 400 })
+  }
+
+  const data = await preview(url)
+  return Response.json({ data })
+}
+```
+
+## Cloudflare Workers
+
+```typescript
+import { preview } from "openlink"
+
+export default {
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url).searchParams.get("url")
+
+    if (!url) {
+      return new Response("Missing url parameter", { status: 400 })
+    }
+
+    const data = await preview(url)
+
+    return new Response(JSON.stringify({ data }), {
+      headers: { "Content-Type": "application/json" }
+    })
+  }
+}
+```
+
+## With Hono
+
+```typescript
+import { Hono } from "hono"
+import { preview } from "openlink"
+
+const app = new Hono()
+
+app.get("/preview", async (c) => {
+  const url = c.req.query("url")
+
+  if (!url) {
+    return c.json({ error: "Missing url" }, 400)
+  }
+
+  const data = await preview(url)
+  return c.json({ data })
+})
+
+export default app
+```
+
+## Deno Deploy
+
+```typescript
+import { preview } from "npm:openlink"
+
+Deno.serve(async (request: Request) => {
+  const url = new URL(request.url).searchParams.get("url")
+
+  if (!url) {
+    return new Response("Missing url parameter", { status: 400 })
+  }
+
+  const data = await preview(url)
+
+  return new Response(JSON.stringify({ data }), {
+    headers: { "Content-Type": "application/json" }
+  })
+})
+```
+
+## Bun
+
+```typescript
+import { preview } from "openlink"
+
+Bun.serve({
+  port: 3000,
+  async fetch(request) {
+    const url = new URL(request.url).searchParams.get("url")
+
+    if (!url) {
+      return new Response("Missing url parameter", { status: 400 })
+    }
+
+    const data = await preview(url)
+    return Response.json({ data })
+  }
+})
+```
+
+## With Elysia
+
+```typescript
+import { Elysia } from "elysia"
+import { preview } from "openlink"
+
+const app = new Elysia()
+  .get("/preview", async ({ query }) => {
+    const url = query.url
+
+    if (!url) {
+      return { error: "Missing url" }
+    }
+
+    const data = await preview(url)
+    return { data }
+  })
+  .listen(3000)
+```
+
+## Why Edge?
+
+| Feature | Benefit |
+|---------|---------|
+| Zero dependencies | No node_modules to bundle |
+| No Node.js APIs | Works on V8 isolates |
+| Small bundle | Under 2kb gzipped |
+| Standard fetch | Uses native fetch API |
+
+### Bundle Size Comparison
+
+| Library | Size | Edge Support |
+|---------|------|--------------|
+| openlink | ~2kb | Yes |
+| unfurl.js | ~25kb | No |
+| link-preview-js | ~30kb | No |
+| open-graph-scraper | ~45kb | No |
+
+---
+
+# AI Tools
+
+OpenLink is perfect for AI applications that need to fetch link metadata. Use it as a tool for function calling with any LLM.
+
+## OpenAI Function Calling
+
+```typescript
+import OpenAI from "openai"
+import { preview } from "openlink"
+
+const openai = new OpenAI()
+
+const tools = [
+  {
+    type: "function",
+    function: {
+      name: "get_link_preview",
+      description: "Get metadata and preview information for a URL",
+      parameters: {
+        type: "object",
+        properties: {
+          url: {
+            type: "string",
+            description: "The URL to get preview data for"
+          }
+        },
+        required: ["url"]
+      }
+    }
+  }
+]
+
+async function handleToolCall(name: string, args: { url: string }) {
+  if (name === "get_link_preview") {
+    return await preview(args.url)
+  }
+}
+
+const response = await openai.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ role: "user", content: "What is github.com about?" }],
+  tools
+})
+
+if (response.choices[0].message.tool_calls) {
+  const call = response.choices[0].message.tool_calls[0]
+  const result = await handleToolCall(
+    call.function.name,
+    JSON.parse(call.function.arguments)
+  )
+  console.log(result)
+}
+```
+
+## Anthropic Claude
+
+```typescript
+import Anthropic from "@anthropic-ai/sdk"
+import { preview } from "openlink"
+
+const anthropic = new Anthropic()
+
+const tools = [
+  {
+    name: "get_link_preview",
+    description: "Get metadata and preview information for a URL",
+    input_schema: {
+      type: "object",
+      properties: {
+        url: {
+          type: "string",
+          description: "The URL to get preview data for"
+        }
+      },
+      required: ["url"]
+    }
+  }
+]
+
+const response = await anthropic.messages.create({
+  model: "claude-sonnet-4-20250514",
+  max_tokens: 1024,
+  tools,
+  messages: [{ role: "user", content: "Summarize vercel.com for me" }]
+})
+
+for (const block of response.content) {
+  if (block.type === "tool_use" && block.name === "get_link_preview") {
+    const data = await preview(block.input.url)
+    console.log(data)
+  }
+}
+```
+
+## Vercel AI SDK
+
+```typescript
+import { openai } from "@ai-sdk/openai"
+import { generateText, tool } from "ai"
+import { preview } from "openlink"
+import { z } from "zod"
+
+const result = await generateText({
+  model: openai("gpt-4o"),
+  tools: {
+    linkPreview: tool({
+      description: "Get metadata for a URL",
+      parameters: z.object({
+        url: z.string().describe("The URL to preview")
+      }),
+      execute: async ({ url }) => preview(url)
+    })
+  },
+  prompt: "What is stripe.com about?"
+})
+
+console.log(result.text)
+```
+
+## LangChain
+
+```typescript
+import { ChatOpenAI } from "@langchain/openai"
+import { DynamicStructuredTool } from "@langchain/core/tools"
+import { preview } from "openlink"
+import { z } from "zod"
+
+const linkPreviewTool = new DynamicStructuredTool({
+  name: "link_preview",
+  description: "Get metadata and preview information for a URL",
+  schema: z.object({
+    url: z.string().describe("The URL to get preview data for")
+  }),
+  func: async ({ url }) => {
+    const data = await preview(url)
+    return JSON.stringify(data)
+  }
+})
+
+const model = new ChatOpenAI({ model: "gpt-4o" })
+const modelWithTools = model.bindTools([linkPreviewTool])
+
+const response = await modelWithTools.invoke("What is github.com?")
+```
+
+## Use Cases
+
+| Use Case | Description |
+|----------|-------------|
+| Link summarization | Extract title and description for AI to summarize |
+| Content analysis | Analyze page metadata for categorization |
+| Research agents | Gather information from multiple URLs |
+| Chat assistants | Show rich previews when users share links |
+| Content curation | Automatically extract metadata for saved links |
+
+---
+
+# Preview API
+
+The Preview API extracts rich metadata from any URL including Open Graph tags, Twitter cards, and standard HTML meta tags.
+
+## Endpoint
+
+```
+GET /api/preview
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| url | string | Yes | The URL to extract metadata from |
+| ttl | string | No | Cache duration (e.g., 1h, 1d). Default: 1h |
+| fresh | boolean | No | Bypass cache and fetch fresh data. Default: false |
+
+## TTL Format
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| Seconds | 30s | 30 seconds |
+| Minutes | 5m | 5 minutes |
+| Hours | 1h | 1 hour |
+| Days | 7d | 7 days |
+
+Valid range: 1m to 31d
+
+## Response
+
+### Success Response
+
+```json
+{
+  "data": {
+    "title": "GitHub",
+    "description": "Where the world builds software",
+    "image": "https://github.githubassets.com/images/og-image.png",
+    "favicon": "https://github.com/favicon.ico",
+    "siteName": "GitHub",
+    "url": "https://github.com",
+    "requestedAt": "2024-01-15T10:30:00.000Z"
+  },
+  "meta": {
+    "cache": {
+      "status": "HIT",
+      "age": 3600000,
+      "ageHuman": "1h",
+      "ttl": 3600000,
+      "ttlHuman": "1h"
+    }
+  }
+}
+```
+
+### Cache Status Values
+
+| Status | Description |
+|--------|-------------|
+| HIT | Served from cache, data is fresh |
+| MISS | Cache empty, fetched from origin |
+| STALE | Served stale data while revalidating in background |
+| BYPASS | Cache bypassed with fresh=true |
+
+## Examples
+
+### Basic Request
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com"
+```
+
+### With Custom TTL
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com&ttl=24h"
+```
+
+### Force Fresh Fetch
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com&fresh=true"
+```
+
+---
+
+# Favicon API
+
+The Favicon API extracts the best available favicon for any domain, with intelligent fallback to generated icons.
+
+## Endpoint
+
+```
+GET /api/favicon
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| domain | string | Yes | Domain to get favicon for (without protocol) |
+| size | string | No | Preferred size. Default: default |
+| ttl | string | No | Cache duration. Default: 24h |
+| fresh | boolean | No | Bypass cache. Default: false |
+
+## Response
+
+Returns the favicon image directly with appropriate Content-Type header.
+
+## Favicon Resolution Order
+
+1. Apple Touch Icon - Highest quality, 180x180 or larger
+2. SVG Icon - Scalable, crisp at any size
+3. Web Manifest - Icons from manifest.json
+4. Standard Icon - Common favicon format
+5. Shortcut Icon - Legacy format
+6. Common Paths - /apple-touch-icon.png, /favicon.ico
+7. Generated SVG - First letter of domain with color
+
+## Examples
+
+### Basic Usage
+
+```html
+<img src="https://openlink.sh/api/favicon?domain=github.com" alt="" />
+```
+
+### In React
+
+```tsx
+function Favicon({ domain }: { domain: string }) {
+  return (
+    <img
+      src={`/api/favicon?domain=${domain}`}
+      alt=""
+      className="w-4 h-4"
+    />
+  )
+}
+```
+
+---
+
+# Caching
+
+OpenLink implements intelligent caching with stale-while-revalidate semantics.
+
+## Cache Strategies
+
+### Fresh Cache Hit
+- Returns immediately
+- Status: HIT
+- Fastest response time
+
+### Stale-While-Revalidate
+- Returns stale data immediately
+- Triggers background revalidation
+- Status: STALE
+- Best for user experience
+
+### Cache Miss
+- Fetches from origin
+- Caches the result
+- Status: MISS
+- Slower initial request
+
+### Cache Bypass
+- Ignores existing cache
+- Fetches from origin
+- Updates cache
+- Status: BYPASS
+
+## Default TTLs
+
+| API | Default TTL | Min TTL | Max TTL |
+|-----|-------------|---------|---------|
+| Preview | 1 hour | 1 minute | 31 days |
+| Favicon | 24 hours | 1 minute | 31 days |
+
+## Response Headers
+
+| Header | Description |
+|--------|-------------|
+| X-Cache-Status | Cache operation result |
+| X-Cache-Age | Seconds since data was cached |
+| X-Cache-TTL | Configured TTL in seconds |
+| Cache-Control | Browser/CDN caching instructions |
+
+---
+
+# Error Handling
+
+## Error Response Format
+
+```json
+{
+  "error": "Human-readable error message",
+  "code": "ERROR_CODE",
+  "message": "Additional context (optional)",
+  "docs": "https://openlink.sh/docs#relevant-section"
+}
+```
+
+## Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| MISSING_URL | 400 | URL parameter not provided |
+| INVALID_URL | 400 | URL format is invalid |
+| INVALID_TTL | 400 | TTL outside valid range |
+| FETCH_ERROR | 500 | Failed to fetch from origin |
+| MISSING_DOMAIN | 400 | Domain parameter not provided |
+
+## Handling Errors
+
+```typescript
+async function getPreview(url: string) {
+  const res = await fetch(`/api/preview?url=${encodeURIComponent(url)}`)
+
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.message || error.error)
+  }
+
+  return res.json()
+}
+
+try {
+  const data = await getPreview("https://example.com")
+} catch (error) {
+  console.error("Preview failed:", error.message)
+}
+```
+
+## Common Issues
+
+### URL Must Include Protocol
+
+```typescript
+// Wrong
+fetch("/api/preview?url=example.com")
+
+// Correct
+fetch("/api/preview?url=https://example.com")
+```
+
+### URL Must Be Encoded
+
+```typescript
+// Wrong
+fetch(`/api/preview?url=https://example.com?foo=bar`)
+
+// Correct
+fetch(`/api/preview?url=${encodeURIComponent("https://example.com?foo=bar")}`)
+```
