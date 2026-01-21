@@ -1,0 +1,64 @@
+---
+title: Introduction
+description: Extract rich link previews from any URL. Zero dependencies, edge-native, under 5kb.
+---
+
+OpenLink is a modern link preview library built for the edge. Extract Open Graph metadata, favicons, and rich previews from any URL with a simple API.
+
+<Cards>
+  <Card title="Quick Start" href="/docs/quickstart">
+    Get up and running in under a minute
+  </Card>
+  <Card title="API Reference" href="/docs/api">
+    Complete reference for all functions
+  </Card>
+  <Card title="TypeScript" href="/docs/typescript">
+    Full type definitions and interfaces
+  </Card>
+  <Card title="Edge Runtimes" href="/docs/edge">
+    Deploy on Workers, Vercel Edge, Deno
+  </Card>
+  <Card title="AI Tools" href="/docs/ai">
+    Use with LLMs and AI agents
+  </Card>
+  <Card title="Caching" href="/docs/caching">
+    Stale-while-revalidate and TTL config
+  </Card>
+</Cards>
+
+## Features
+
+- **Zero dependencies** - No bloat, just what you need
+- **Edge native** - Works on Cloudflare Workers, Vercel Edge, Deno, Bun
+- **TypeScript** - Full type safety out of the box
+- **Tiny** - Under 5kb gzipped
+- **Smart caching** - Built-in stale-while-revalidate support
+
+## Quick Example
+
+```typescript
+import { preview } from "openlink"
+
+const data = await preview("https://github.com")
+
+console.log(data)
+// {
+//   title: "GitHub",
+//   description: "Where the world builds software",
+//   image: "https://github.githubassets.com/images/...",
+//   favicon: "https://github.com/favicon.ico",
+//   siteName: "GitHub"
+// }
+```
+
+## Hosted API
+
+<Callout>
+Don't want to self-host? Use our free API at `openlink.sh` with built-in caching and no rate limits.
+</Callout>
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com"
+```
+
+The hosted API includes intelligent caching, favicon extraction, and returns rich metadata for any URL.

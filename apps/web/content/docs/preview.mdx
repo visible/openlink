@@ -1,0 +1,188 @@
+---
+title: Preview API
+description: Extract Open Graph metadata from any URL.
+---
+
+The Preview API extracts rich metadata from any URL including Open Graph tags, Twitter cards, and standard HTML meta tags.
+
+## Endpoint
+
+```
+GET /api/preview
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `url` | string | Yes | The URL to extract metadata from |
+| `ttl` | string | No | Cache duration (e.g., `1h`, `1d`). Default: `1h` |
+| `fresh` | boolean | No | Bypass cache and fetch fresh data. Default: `false` |
+
+## TTL Format
+
+The `ttl` parameter accepts duration strings:
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| Seconds | `30s` | 30 seconds |
+| Minutes | `5m` | 5 minutes |
+| Hours | `1h` | 1 hour |
+| Days | `7d` | 7 days |
+
+Valid range: `1m` to `31d`
+
+## Response
+
+### Success Response
+
+```json
+{
+  "data": {
+    "title": "GitHub",
+    "description": "Where the world builds software",
+    "image": "https://github.githubassets.com/images/og-image.png",
+    "favicon": "https://github.com/favicon.ico",
+    "siteName": "GitHub",
+    "url": "https://github.com",
+    "requestedAt": "2024-01-15T10:30:00.000Z"
+  },
+  "meta": {
+    "cache": {
+      "status": "HIT",
+      "age": 3600000,
+      "ageHuman": "1h",
+      "ttl": 3600000,
+      "ttlHuman": "1h",
+      "expiresIn": 0,
+      "expiresInHuman": "0s"
+    },
+    "timing": {
+      "requestedAt": "2024-01-15T10:30:00.000Z"
+    }
+  }
+}
+```
+
+### Cache Status Values
+
+| Status | Description |
+|--------|-------------|
+| `HIT` | Served from cache, data is fresh |
+| `MISS` | Cache empty, fetched from origin |
+| `STALE` | Served stale data while revalidating in background |
+| `BYPASS` | Cache bypassed with `fresh=true` |
+
+### Response Headers
+
+| Header | Description |
+|--------|-------------|
+| `X-Cache-Status` | Current cache status |
+| `X-Cache-Age` | Age of cached data in seconds |
+| `X-Cache-TTL` | TTL of cached data in seconds |
+| `Cache-Control` | Browser caching directive |
+
+## Examples
+
+### Basic Request
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com"
+```
+
+### With Custom TTL
+
+Cache the result for 24 hours:
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com&ttl=24h"
+```
+
+### Force Fresh Fetch
+
+Bypass cache and get fresh data:
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com&fresh=true"
+```
+
+### JavaScript
+
+```typescript
+async function getPreview(url: string) {
+  const res = await fetch(
+    `https://openlink.sh/api/preview?url=${encodeURIComponent(url)}`
+  )
+  const { data } = await res.json()
+  return data
+}
+
+const preview = await getPreview("https://github.com")
+console.log(preview.title) // "GitHub"
+```
+
+### React Hook
+
+```typescript
+import { useState, useEffect } from "react"
+
+function usePreview(url: string) {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    setLoading(true)
+    fetch(`/api/preview?url=${encodeURIComponent(url)}`)
+      .then(res => res.json())
+      .then(result => {
+        setData(result.data)
+        setLoading(false)
+      })
+  }, [url])
+
+  return { data, loading }
+}
+```
+
+## Error Responses
+
+### Missing URL
+
+```json
+{
+  "error": "Missing required parameter: url",
+  "code": "MISSING_URL",
+  "docs": "https://openlink.sh/docs#preview"
+}
+```
+
+### Invalid URL
+
+```json
+{
+  "error": "Invalid URL format",
+  "code": "INVALID_URL",
+  "docs": "https://openlink.sh/docs#preview"
+}
+```
+
+### Invalid TTL
+
+```json
+{
+  "error": "TTL must be between 1m and 31d",
+  "code": "INVALID_TTL",
+  "docs": "https://openlink.sh/docs#caching"
+}
+```
+
+### Fetch Error
+
+```json
+{
+  "error": "Failed to fetch preview",
+  "code": "FETCH_ERROR",
+  "message": "Connection timeout",
+  "docs": "https://openlink.sh/docs#errors"
+}
+```

@@ -1,64 +1,95 @@
+const og = (p) => new RegExp(`<meta[^>]*(?:property=["']${p}["'][^>]*content=["']([^"']*)["']|content=["']([^"']*)["'][^>]*property=["']${p}["'])[^>]*>`, "i");
+const meta = (n) => new RegExp(`<meta[^>]*(?:name=["']${n}["'][^>]*content=["']([^"']*)["']|content=["']([^"']*)["'][^>]*name=["']${n}["'])[^>]*>`, "i");
+const link = (r) => new RegExp(`<link[^>]*(?:rel=["']${r}["'][^>]*href=["']([^"']*)["']|href=["']([^"']*)["'][^>]*rel=["']${r}["'])[^>]*>`, "i");
+
 const patterns = {
-  ogTitle: /<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  ogTitleAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*property=["']og:title["'][^>]*>/i,
-  ogDescription: /<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  ogDescriptionAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*property=["']og:description["'][^>]*>/i,
-  ogImage: /<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  ogImageAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*property=["']og:image["'][^>]*>/i,
-  ogType: /<meta[^>]*property=["']og:type["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  ogTypeAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*property=["']og:type["'][^>]*>/i,
-  ogSiteName: /<meta[^>]*property=["']og:site_name["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  ogSiteNameAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*property=["']og:site_name["'][^>]*>/i,
-  ogUrl: /<meta[^>]*property=["']og:url["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  ogUrlAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*property=["']og:url["'][^>]*>/i,
-  twitterTitle: /<meta[^>]*name=["']twitter:title["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  twitterTitleAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*name=["']twitter:title["'][^>]*>/i,
-  twitterDescription: /<meta[^>]*name=["']twitter:description["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  twitterDescriptionAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*name=["']twitter:description["'][^>]*>/i,
-  twitterImage: /<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  twitterImageAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*name=["']twitter:image["'][^>]*>/i,
-  twitterCard: /<meta[^>]*name=["']twitter:card["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  twitterCardAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*name=["']twitter:card["'][^>]*>/i,
-  title: /<title[^>]*>([^<]*)<\/title>/i,
-  description: /<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i,
-  descriptionAlt: /<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i,
-  favicon: /<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']*)["'][^>]*>/i,
-  faviconAlt: /<link[^>]*href=["']([^"']*)["'][^>]*rel=["'](?:shortcut )?icon["'][^>]*>/i,
-  canonical: /<link[^>]*rel=["']canonical["'][^>]*href=["']([^"']*)["'][^>]*>/i,
-  canonicalAlt: /<link[^>]*href=["']([^"']*)["'][^>]*rel=["']canonical["'][^>]*>/i
+	ogTitle: og("og:title"),
+	ogDescription: og("og:description"),
+	ogImage: og("og:image"),
+	ogImageWidth: og("og:image:width"),
+	ogImageHeight: og("og:image:height"),
+	ogImageAlt: og("og:image:alt"),
+	ogType: og("og:type"),
+	ogSiteName: og("og:site_name"),
+	ogUrl: og("og:url"),
+	ogLocale: og("og:locale"),
+	ogVideo: og("og:video"),
+	ogAudio: og("og:audio"),
+	articleAuthor: og("article:author"),
+	articlePublishedTime: og("article:published_time"),
+	twitterTitle: meta("twitter:title"),
+	twitterDescription: meta("twitter:description"),
+	twitterImage: meta("twitter:image"),
+	twitterCard: meta("twitter:card"),
+	twitterSite: meta("twitter:site"),
+	twitterCreator: meta("twitter:creator"),
+	description: meta("description"),
+	themeColor: meta("theme-color"),
+	keywords: meta("keywords"),
+	author: meta("author"),
+	robots: meta("robots"),
+	favicon: link("(?:shortcut )?icon"),
+	appleTouchIcon: link("apple-touch-icon"),
+	canonical: link("canonical"),
+	title: /<title[^>]*>([^<]*)<\/title>/i,
+};
+
+const entities = {
+	"&amp;": "&",
+	"&lt;": "<",
+	"&gt;": ">",
+	"&quot;": '"',
+	"&#39;": "'",
+	"&#x27;": "'",
+	"&#x2F;": "/",
+	"&apos;": "'",
+	"&#x3D;": "=",
+	"&nbsp;": " ",
+};
+
+const entityPattern = /&(?:amp|lt|gt|quot|apos|nbsp|#39|#x27|#x2F|#x3D);/g;
+
+function decode(str) {
+	if (!str) return null;
+	return str.replace(entityPattern, (match) => entities[match] || match);
 }
 
 export function parse(html) {
-  const get = (key) => {
-    const match = html.match(patterns[key]) || html.match(patterns[key + 'Alt'])
-    return match ? decode(match[1].trim()) : null
-  }
+	const get = (key) => {
+		const match = html.match(patterns[key]);
+		if (!match) return null;
+		return decode((match[1] || match[2] || "").trim()) || null;
+	};
 
-  return {
-    ogTitle: get('ogTitle'),
-    ogDescription: get('ogDescription'),
-    ogImage: get('ogImage'),
-    ogType: get('ogType'),
-    ogSiteName: get('ogSiteName'),
-    ogUrl: get('ogUrl'),
-    twitterTitle: get('twitterTitle'),
-    twitterDescription: get('twitterDescription'),
-    twitterImage: get('twitterImage'),
-    twitterCard: get('twitterCard'),
-    title: get('title'),
-    description: get('description'),
-    favicon: get('favicon'),
-    canonical: get('canonical')
-  }
-}
-
-function decode(str) {
-  return str
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&#x27;/g, "'")
-    .replace(/&#x2F;/g, '/')
+	return {
+		ogTitle: get("ogTitle"),
+		ogDescription: get("ogDescription"),
+		ogImage: get("ogImage"),
+		ogImageWidth: get("ogImageWidth"),
+		ogImageHeight: get("ogImageHeight"),
+		ogImageAlt: get("ogImageAlt"),
+		ogType: get("ogType"),
+		ogSiteName: get("ogSiteName"),
+		ogUrl: get("ogUrl"),
+		ogLocale: get("ogLocale"),
+		ogVideo: get("ogVideo"),
+		ogAudio: get("ogAudio"),
+		articleAuthor: get("articleAuthor"),
+		articlePublishedTime: get("articlePublishedTime"),
+		twitterTitle: get("twitterTitle"),
+		twitterDescription: get("twitterDescription"),
+		twitterImage: get("twitterImage"),
+		twitterCard: get("twitterCard"),
+		twitterSite: get("twitterSite"),
+		twitterCreator: get("twitterCreator"),
+		title: get("title"),
+		description: get("description"),
+		favicon: get("favicon"),
+		appleTouchIcon: get("appleTouchIcon"),
+		canonical: get("canonical"),
+		themeColor: get("themeColor"),
+		keywords: get("keywords"),
+		author: get("author"),
+		robots: get("robots"),
+	};
 }

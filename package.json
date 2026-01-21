@@ -1,13 +1,17 @@
 {
-  "name": "openlink-monorepo",
+  "name": "olm",
   "private": true,
+  "packageManager": "bun@1.2.20",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
-    "dev": "bun run --filter web dev",
-    "build": "bun run --filter web build",
-    "test": "bun run --filter openlink test"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test"
+  },
+  "devDependencies": {
+    "turbo": "^2.7.5"
   }
 }

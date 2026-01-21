@@ -1,0 +1,201 @@
+---
+title: Edge Runtimes
+description: Deploy openlink on Cloudflare Workers, Vercel Edge, Deno, and Bun.
+---
+
+OpenLink works on any JavaScript runtime with zero dependencies. No Node.js APIs required.
+
+## Vercel Edge Functions
+
+```typescript
+import { preview } from "openlink"
+
+export const config = {
+  runtime: "edge"
+}
+
+export default async function handler(request: Request) {
+  const url = new URL(request.url).searchParams.get("url")
+
+  if (!url) {
+    return new Response("Missing url parameter", { status: 400 })
+  }
+
+  const data = await preview(url)
+
+  return Response.json({ data })
+}
+```
+
+### Next.js App Router
+
+```typescript
+import { preview } from "openlink"
+
+export const runtime = "edge"
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const url = searchParams.get("url")
+
+  if (!url) {
+    return Response.json({ error: "Missing url" }, { status: 400 })
+  }
+
+  const data = await preview(url)
+  return Response.json({ data })
+}
+```
+
+---
+
+## Cloudflare Workers
+
+```typescript
+import { preview } from "openlink"
+
+export default {
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url).searchParams.get("url")
+
+    if (!url) {
+      return new Response("Missing url parameter", { status: 400 })
+    }
+
+    const data = await preview(url)
+
+    return new Response(JSON.stringify({ data }), {
+      headers: { "Content-Type": "application/json" }
+    })
+  }
+}
+```
+
+### With Hono
+
+```typescript
+import { Hono } from "hono"
+import { preview } from "openlink"
+
+const app = new Hono()
+
+app.get("/preview", async (c) => {
+  const url = c.req.query("url")
+
+  if (!url) {
+    return c.json({ error: "Missing url" }, 400)
+  }
+
+  const data = await preview(url)
+  return c.json({ data })
+})
+
+export default app
+```
+
+---
+
+## Deno Deploy
+
+```typescript
+import { preview } from "npm:openlink"
+
+Deno.serve(async (request: Request) => {
+  const url = new URL(request.url).searchParams.get("url")
+
+  if (!url) {
+    return new Response("Missing url parameter", { status: 400 })
+  }
+
+  const data = await preview(url)
+
+  return new Response(JSON.stringify({ data }), {
+    headers: { "Content-Type": "application/json" }
+  })
+})
+```
+
+### With Fresh
+
+```typescript
+import { preview } from "openlink"
+import { Handlers } from "$fresh/server.ts"
+
+export const handler: Handlers = {
+  async GET(req) {
+    const url = new URL(req.url).searchParams.get("url")
+
+    if (!url) {
+      return new Response("Missing url", { status: 400 })
+    }
+
+    const data = await preview(url)
+    return Response.json({ data })
+  }
+}
+```
+
+---
+
+## Bun
+
+```typescript
+import { preview } from "openlink"
+
+Bun.serve({
+  port: 3000,
+  async fetch(request) {
+    const url = new URL(request.url).searchParams.get("url")
+
+    if (!url) {
+      return new Response("Missing url parameter", { status: 400 })
+    }
+
+    const data = await preview(url)
+
+    return Response.json({ data })
+  }
+})
+```
+
+### With Elysia
+
+```typescript
+import { Elysia } from "elysia"
+import { preview } from "openlink"
+
+const app = new Elysia()
+  .get("/preview", async ({ query }) => {
+    const url = query.url
+
+    if (!url) {
+      return { error: "Missing url" }
+    }
+
+    const data = await preview(url)
+    return { data }
+  })
+  .listen(3000)
+```
+
+---
+
+## Why Edge?
+
+OpenLink is designed for edge runtimes:
+
+| Feature | Benefit |
+|---------|---------|
+| Zero dependencies | No node_modules to bundle |
+| No Node.js APIs | Works on V8 isolates |
+| Small bundle | Under 5kb gzipped |
+| Standard fetch | Uses native fetch API |
+
+### Bundle Size Comparison
+
+| Library | Size | Edge Support |
+|---------|------|--------------|
+| openlink | ~2kb | Yes |
+| unfurl.js | ~25kb | No |
+| link-preview-js | ~30kb | No |
+| open-graph-scraper | ~45kb | No |

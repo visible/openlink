@@ -1,0 +1,207 @@
+---
+title: Caching
+description: How OpenLink handles caching for optimal performance.
+---
+
+OpenLink implements intelligent caching with stale-while-revalidate semantics, similar to industry leaders like Microlink and Slack.
+
+## How It Works
+
+```
+Request → Check Cache → Fresh? → Return
+                ↓ No
+         Stale? → Return stale + revalidate in background
+                ↓ No
+         Fetch from origin → Cache → Return
+```
+
+## Cache Strategies
+
+### Fresh Cache Hit
+
+When cached data exists and hasn't expired:
+
+- Returns immediately
+- Status: `HIT`
+- Fastest response time
+
+### Stale-While-Revalidate
+
+When cached data exists but has expired:
+
+- Returns stale data immediately
+- Triggers background revalidation
+- Status: `STALE`
+- Best for user experience
+
+### Cache Miss
+
+When no cached data exists:
+
+- Fetches from origin
+- Caches the result
+- Status: `MISS`
+- Slower initial request
+
+### Cache Bypass
+
+When `fresh=true` is requested:
+
+- Ignores existing cache
+- Fetches from origin
+- Updates cache
+- Status: `BYPASS`
+
+## Configuration
+
+### Default TTLs
+
+| API | Default TTL | Min TTL | Max TTL |
+|-----|-------------|---------|---------|
+| Preview | 1 hour | 1 minute | 31 days |
+| Favicon | 24 hours | 1 minute | 31 days |
+
+### TTL Format
+
+```
+30s   → 30 seconds
+5m    → 5 minutes
+1h    → 1 hour
+7d    → 7 days
+```
+
+### Custom TTL
+
+```bash
+# Cache for 6 hours
+curl "/api/preview?url=https://example.com&ttl=6h"
+
+# Cache for 1 week
+curl "/api/favicon?domain=example.com&ttl=7d"
+```
+
+## Refresh Behavior
+
+### Rate Limiting
+
+To prevent abuse, fresh requests are rate-limited:
+
+- Cooldown: 10 minutes per cache key
+- During cooldown: returns cached data instead
+- Status: `HIT` (even with `fresh=true`)
+
+### When to Use Fresh
+
+```typescript
+// User manually requests refresh
+<button onClick={() => fetch(`/api/preview?url=${url}&fresh=true`)}>
+  Refresh
+</button>
+
+// After content update (webhooks)
+async function onContentUpdate(url: string) {
+  await fetch(`/api/preview?url=${url}&fresh=true`)
+}
+```
+
+## Response Headers
+
+Every response includes cache information:
+
+```http
+X-Cache-Status: HIT
+X-Cache-Age: 1800
+X-Cache-TTL: 3600
+Cache-Control: public, max-age=3600, stale-while-revalidate=3600
+```
+
+### Interpreting Headers
+
+| Header | Description |
+|--------|-------------|
+| `X-Cache-Status` | Cache operation result |
+| `X-Cache-Age` | Seconds since data was cached |
+| `X-Cache-TTL` | Configured TTL in seconds |
+| `Cache-Control` | Browser/CDN caching instructions |
+
+## CDN Integration
+
+OpenLink cache headers work seamlessly with CDNs:
+
+### Vercel Edge
+
+```typescript
+// Vercel automatically respects Cache-Control headers
+export const config = {
+  runtime: "edge"
+}
+```
+
+### Cloudflare
+
+```typescript
+// Cloudflare respects Cache-Control
+// Add custom cache rules in dashboard if needed
+```
+
+### Manual CDN Cache
+
+```typescript
+// Override for CDN-specific caching
+const response = await fetch("/api/preview?url=" + url)
+const data = await response.json()
+
+// Use CDN's cache API
+await cache.put(cacheKey, new Response(JSON.stringify(data)), {
+  headers: {
+    "Cache-Control": "max-age=86400"
+  }
+})
+```
+
+## Best Practices
+
+### For Static Content
+
+Use longer TTLs for content that rarely changes:
+
+```typescript
+// Company websites, documentation
+const ttl = "7d"
+```
+
+### For Dynamic Content
+
+Use shorter TTLs for frequently updated content:
+
+```typescript
+// News sites, social media
+const ttl = "5m"
+```
+
+### For User Actions
+
+Allow users to refresh when needed:
+
+```typescript
+function PreviewCard({ url }: { url: string }) {
+  const [key, setKey] = useState(0)
+
+  return (
+    <div>
+      <Preview url={url} key={key} />
+      <button onClick={() => setKey(k => k + 1)}>
+        Refresh
+      </button>
+    </div>
+  )
+}
+```
+
+## Cache Invalidation
+
+Currently, cache invalidation is automatic based on TTL. For manual invalidation:
+
+1. Use `fresh=true` parameter
+2. Wait for TTL to expire
+3. (Coming soon) API key with purge access

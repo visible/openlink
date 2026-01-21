@@ -1,0 +1,198 @@
+---
+title: Favicon API
+description: Get high-quality favicons for any domain.
+---
+
+The Favicon API extracts the best available favicon for any domain, with intelligent fallback to generated icons.
+
+## Endpoint
+
+```
+GET /api/favicon
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `domain` | string | Yes | Domain to get favicon for (without protocol) |
+| `size` | string | No | Preferred size. Default: `default` |
+| `ttl` | string | No | Cache duration. Default: `24h` |
+| `fresh` | boolean | No | Bypass cache. Default: `false` |
+
+## Response
+
+Returns the favicon image directly with appropriate `Content-Type` header.
+
+### Response Headers
+
+| Header | Description |
+|--------|-------------|
+| `Content-Type` | Image MIME type (`image/png`, `image/svg+xml`, etc.) |
+| `X-Cache-Status` | Cache status (`HIT`, `MISS`, `STALE`, `GENERATED`) |
+| `X-Cache-Age` | Age of cached data in seconds |
+| `Cache-Control` | Browser caching directive |
+
+### Cache Status Values
+
+| Status | Description |
+|--------|-------------|
+| `HIT` | Served cached favicon |
+| `MISS` | Fetched fresh from origin |
+| `STALE` | Served stale while revalidating |
+| `GENERATED` | Fallback SVG generated |
+| `ERROR` | Error occurred, fallback served |
+
+## Favicon Resolution
+
+The API uses intelligent resolution to find the best favicon:
+
+1. **Apple Touch Icon** (priority: 100)
+   - `<link rel="apple-touch-icon">`
+   - Highest quality, 180x180 or larger
+
+2. **SVG Icon** (priority: 90)
+   - `<link rel="icon" type="image/svg+xml">`
+   - Scalable, crisp at any size
+
+3. **Web Manifest** (priority: 85)
+   - Icons from `manifest.json`
+   - Sorted by size, largest first
+
+4. **Standard Icon** (priority: 80)
+   - `<link rel="icon">`
+   - Common favicon format
+
+5. **Shortcut Icon** (priority: 70)
+   - `<link rel="shortcut icon">`
+   - Legacy format
+
+6. **Common Paths** (fallback)
+   - `/apple-touch-icon.png`
+   - `/favicon-32x32.png`
+   - `/favicon.ico`
+
+7. **Generated SVG** (final fallback)
+   - First letter of domain
+   - Color based on domain hash
+
+## Examples
+
+### Basic Usage
+
+```html
+<img src="https://openlink.sh/api/favicon?domain=github.com" alt="" />
+```
+
+### In React
+
+```tsx
+function Favicon({ domain }: { domain: string }) {
+  return (
+    <img
+      src={`/api/favicon?domain=${domain}`}
+      alt=""
+      className="w-4 h-4"
+    />
+  )
+}
+```
+
+### With Custom TTL
+
+Cache for 7 days:
+
+```html
+<img src="https://openlink.sh/api/favicon?domain=github.com&ttl=7d" alt="" />
+```
+
+### Force Fresh Fetch
+
+```html
+<img src="https://openlink.sh/api/favicon?domain=github.com&fresh=true" alt="" />
+```
+
+### Link Preview Card
+
+```tsx
+function LinkCard({ url }: { url: string }) {
+  const domain = new URL(url).hostname
+
+  return (
+    <div className="flex items-center gap-2">
+      <img
+        src={`/api/favicon?domain=${domain}`}
+        alt=""
+        className="w-4 h-4 rounded"
+      />
+      <span>{domain}</span>
+    </div>
+  )
+}
+```
+
+## Generated Fallback
+
+When no favicon is found, the API generates an SVG with:
+
+- First letter of domain (uppercase)
+- Background color derived from domain hash
+- Clean, modern appearance
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="hsl(210, 60%, 65%)"/>
+  <text x="50" y="50" dy=".35em" text-anchor="middle"
+        font-family="system-ui" font-size="50" font-weight="600"
+        fill="white">G</text>
+</svg>
+```
+
+## Error Handling
+
+The favicon API is designed to never fail. If any error occurs:
+
+1. Falls back to generated SVG
+2. Returns `X-Cache-Status: ERROR`
+3. Still returns valid image response
+
+This ensures your UI never shows broken image icons.
+
+## Best Practices
+
+### Always Set Width/Height
+
+Prevent layout shift by specifying dimensions:
+
+```html
+<img
+  src="/api/favicon?domain=example.com"
+  alt=""
+  width="16"
+  height="16"
+/>
+```
+
+### Use Loading Lazy
+
+For lists of favicons, use lazy loading:
+
+```html
+<img
+  src="/api/favicon?domain=example.com"
+  alt=""
+  loading="lazy"
+/>
+```
+
+### Handle Dark Mode
+
+Some favicons may not be visible on dark backgrounds:
+
+```tsx
+<img
+  src="/api/favicon?domain=example.com"
+  alt=""
+  className="rounded bg-white p-0.5"
+/>
+```

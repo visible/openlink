@@ -1,0 +1,194 @@
+---
+title: TypeScript
+description: Full type definitions and interfaces for openlink.
+---
+
+OpenLink is written in TypeScript and includes complete type definitions.
+
+## PreviewOptions
+
+Configuration options for the `preview` function.
+
+```typescript
+interface PreviewOptions {
+  timeout?: number
+  headers?: Record<string, string>
+  followRedirects?: boolean
+  fetch?: typeof fetch
+  includeRaw?: boolean
+  validateUrl?: boolean
+}
+```
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `timeout` | `number` | `10000` | Request timeout in ms |
+| `headers` | `Record<string, string>` | See below | Custom headers |
+| `followRedirects` | `boolean` | `true` | Follow HTTP redirects |
+| `fetch` | `typeof fetch` | `globalThis.fetch` | Custom fetch function |
+| `includeRaw` | `boolean` | `false` | Include raw metadata |
+| `validateUrl` | `boolean` | `true` | Validate URL first |
+
+---
+
+## PreviewResult
+
+The normalized result returned by `preview` and `extract`.
+
+```typescript
+interface PreviewResult {
+  url: string
+  title: string | null
+  description: string | null
+  image: string | null
+  favicon: string
+  siteName: string
+  domain: string
+  type: string
+  author: string | null
+  publishedTime: string | null
+  themeColor: string | null
+  twitterCard: string | null
+  locale: string | null
+  video: string | null
+  audio: string | null
+  keywords: string[] | null
+  raw?: ParseResult
+}
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `url` | `string` | Canonical URL |
+| `title` | `string \| null` | Page title |
+| `description` | `string \| null` | Page description |
+| `image` | `string \| null` | Primary image URL |
+| `favicon` | `string` | Favicon URL |
+| `siteName` | `string` | Site name or domain |
+| `domain` | `string` | Hostname |
+| `type` | `string` | Content type (og:type) |
+| `author` | `string \| null` | Author name |
+| `publishedTime` | `string \| null` | Publish date |
+| `themeColor` | `string \| null` | Theme color |
+| `twitterCard` | `string \| null` | Twitter card type |
+| `locale` | `string \| null` | Content locale |
+| `video` | `string \| null` | Video URL |
+| `audio` | `string \| null` | Audio URL |
+| `keywords` | `string[] \| null` | Keywords array |
+| `raw` | `ParseResult` | Raw metadata (if enabled) |
+
+---
+
+## ParseResult
+
+Raw parsed metadata from HTML, returned by `parse`.
+
+```typescript
+interface ParseResult {
+  ogTitle: string | null
+  ogDescription: string | null
+  ogImage: string | null
+  ogImageWidth: string | null
+  ogImageHeight: string | null
+  ogImageAlt: string | null
+  ogType: string | null
+  ogSiteName: string | null
+  ogUrl: string | null
+  ogLocale: string | null
+  ogVideo: string | null
+  ogAudio: string | null
+  articleAuthor: string | null
+  articlePublishedTime: string | null
+  twitterTitle: string | null
+  twitterDescription: string | null
+  twitterImage: string | null
+  twitterCard: string | null
+  twitterSite: string | null
+  twitterCreator: string | null
+  title: string | null
+  description: string | null
+  favicon: string | null
+  appleTouchIcon: string | null
+  canonical: string | null
+  themeColor: string | null
+  keywords: string | null
+  author: string | null
+  robots: string | null
+}
+```
+
+---
+
+## PreviewError
+
+Custom error class with error codes for programmatic handling.
+
+```typescript
+class PreviewError extends Error {
+  code: "INVALID_URL" | "TIMEOUT" | "FETCH_ERROR" | "HTTP_ERROR"
+  status?: number
+  cause?: Error
+
+  constructor(
+    message: string,
+    code: PreviewError["code"],
+    options?: { status?: number; cause?: Error }
+  )
+}
+```
+
+### Error Codes
+
+| Code | Description |
+|------|-------------|
+| `INVALID_URL` | URL format is invalid |
+| `TIMEOUT` | Request timed out |
+| `FETCH_ERROR` | Network error |
+| `HTTP_ERROR` | Non-2xx HTTP status |
+
+### Example
+
+```typescript
+import { preview, PreviewError } from "openlink"
+
+try {
+  const data = await preview("https://example.com")
+} catch (error) {
+  if (error instanceof PreviewError) {
+    switch (error.code) {
+      case "TIMEOUT":
+        console.log("Request timed out")
+        break
+      case "HTTP_ERROR":
+        console.log(`HTTP ${error.status}`)
+        break
+      default:
+        console.log(error.message)
+    }
+  }
+}
+```
+
+---
+
+## Type Imports
+
+Import types directly for use in your code:
+
+```typescript
+import type {
+  PreviewOptions,
+  PreviewResult,
+  ParseResult
+} from "openlink"
+
+function processPreview(result: PreviewResult) {
+  // TypeScript knows all properties
+  console.log(result.title)
+}
+
+const options: PreviewOptions = {
+  timeout: 5000,
+  includeRaw: true
+}
+```

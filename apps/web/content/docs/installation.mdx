@@ -1,0 +1,44 @@
+---
+title: Installation
+description: Install OpenLink in your project.
+---
+
+Install OpenLink using your preferred package manager.
+
+<Tabs items={["bun", "pnpm", "npm", "yarn"]}>
+  <Tab value="bun">
+    ```bash
+    bun add openlink
+    ```
+  </Tab>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add openlink
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install openlink
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn add openlink
+    ```
+  </Tab>
+</Tabs>
+
+## Requirements
+
+- Node.js 18+ or any modern runtime (Bun, Deno, Cloudflare Workers)
+- ESM environment (OpenLink is ESM-only)
+
+## TypeScript
+
+OpenLink is written in TypeScript and includes type definitions. No additional `@types` package is needed.
+
+```typescript
+import { preview, type PreviewResult } from "openlink"
+
+const data: PreviewResult = await preview("https://example.com")
+```

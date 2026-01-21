@@ -1,0 +1,49 @@
+# OpenLink
+
+> Link previews from any URL. Zero dependencies, edge-native, under 5kb.
+
+OpenLink is a modern link preview library built for the edge. Extract Open Graph metadata, favicons, and rich previews from any URL.
+
+## Documentation
+
+- [Introduction](/docs): Overview and quick example
+- [Installation](/docs/installation): Install via npm, pnpm, yarn, or bun
+- [Quick Start](/docs/quickstart): Get up and running in under a minute
+- [API Reference](/docs/api): Complete reference for preview, parse, extract functions
+- [Preview API](/docs/preview): Hosted API endpoint reference
+- [Favicon API](/docs/favicon): Extract favicons from any domain
+- [TypeScript](/docs/typescript): Full type definitions and interfaces
+- [Edge Runtimes](/docs/edge): Deploy on Cloudflare Workers, Vercel Edge, Deno, Bun
+- [AI Tools](/docs/ai): Use openlink as a tool for LLMs and AI agents
+- [Caching](/docs/caching): Stale-while-revalidate and TTL configuration
+- [Errors](/docs/errors): Error codes and handling
+
+## Quick Example
+
+```typescript
+import { preview } from "openlink"
+
+const data = await preview("https://github.com")
+console.log(data.title) // "GitHub"
+```
+
+## Hosted API
+
+```bash
+curl "https://openlink.sh/api/preview?url=https://github.com"
+```
+
+## Features
+
+- Zero dependencies
+- Edge native (Cloudflare Workers, Vercel Edge, Deno, Bun)
+- TypeScript with full type safety
+- Under 5kb gzipped
+- Smart caching with stale-while-revalidate
+- AI/LLM tool compatible
+
+## Links
+
+- Website: https://openlink.sh
+- GitHub: https://github.com/visible/openlink
+- npm: https://npmjs.com/package/openlink

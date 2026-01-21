@@ -1,49 +1,106 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+@source "../node_modules/fumadocs-ui/dist/**/*.js";
+
+@theme {
+	--color-fd-background: hsl(0, 0%, 100%);
+	--color-fd-foreground: hsl(0, 0%, 0%);
+	--color-fd-muted: hsl(0, 0%, 96%);
+	--color-fd-muted-foreground: hsl(0, 0%, 40%);
+	--color-fd-popover: hsl(0, 0%, 100%);
+	--color-fd-popover-foreground: hsl(0, 0%, 0%);
+	--color-fd-card: hsl(0, 0%, 100%);
+	--color-fd-card-foreground: hsl(0, 0%, 0%);
+	--color-fd-border: hsl(0, 0%, 90%);
+	--color-fd-primary: hsl(0, 0%, 0%);
+	--color-fd-primary-foreground: hsl(0, 0%, 100%);
+	--color-fd-secondary: hsl(0, 0%, 96%);
+	--color-fd-secondary-foreground: hsl(0, 0%, 0%);
+	--color-fd-accent: hsl(0, 0%, 96%);
+	--color-fd-accent-foreground: hsl(0, 0%, 0%);
+	--color-fd-ring: hsl(0, 0%, 80%);
+}
+
+.dark {
+	--color-fd-background: hsl(0, 0%, 4%);
+	--color-fd-foreground: hsl(0, 0%, 100%);
+	--color-fd-muted: hsl(0, 0%, 10%);
+	--color-fd-muted-foreground: hsl(0, 0%, 60%);
+	--color-fd-popover: hsl(0, 0%, 6%);
+	--color-fd-popover-foreground: hsl(0, 0%, 100%);
+	--color-fd-card: hsl(0, 0%, 6%);
+	--color-fd-card-foreground: hsl(0, 0%, 100%);
+	--color-fd-border: hsl(0, 0%, 18%);
+	--color-fd-primary: hsl(0, 0%, 100%);
+	--color-fd-primary-foreground: hsl(0, 0%, 0%);
+	--color-fd-secondary: hsl(0, 0%, 12%);
+	--color-fd-secondary-foreground: hsl(0, 0%, 100%);
+	--color-fd-accent: hsl(0, 0%, 12%);
+	--color-fd-accent-foreground: hsl(0, 0%, 100%);
+	--color-fd-ring: hsl(0, 0%, 30%);
+}
+
+:root {
+	--fd-layout-width: 1280px;
+	color-scheme: light;
+}
+
+.dark {
+	color-scheme: dark;
+}
+
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 html {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #000;
-  color: #fff;
+	font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+	min-height: 100vh;
+	transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+	color: inherit;
+	text-decoration: none;
 }
 
-code {
-  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
-  background: #111;
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-  font-size: 0.9em;
+a.get-started {
+	color: white;
 }
 
-pre {
-  background: #111;
-  padding: 1.5rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  line-height: 1.6;
+html.dark a.get-started {
+	color: black;
 }
 
-pre code {
-  background: none;
-  padding: 0;
+code, pre {
+	font-family: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 ::selection {
-  background: #fff;
-  color: #000;
+	background: #000;
+	color: #fff;
+}
+
+html.dark ::selection {
+	background: #fff;
+	color: #000;
+}
+
+.line-clamp-2 {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.line-clamp-3 {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }

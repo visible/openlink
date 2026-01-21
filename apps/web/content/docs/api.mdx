@@ -1,0 +1,199 @@
+---
+title: API Reference
+description: Complete reference for all openlink functions and options.
+---
+
+## preview
+
+The main function to fetch and parse link preview metadata from a URL.
+
+```typescript
+import { preview } from "openlink"
+
+const data = await preview("https://github.com")
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to fetch and parse |
+| `options` | `PreviewOptions` | Optional configuration |
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `timeout` | `number` | `10000` | Request timeout in milliseconds |
+| `headers` | `Record<string, string>` | See below | Custom headers to send |
+| `followRedirects` | `boolean` | `true` | Whether to follow redirects |
+| `fetch` | `typeof fetch` | `globalThis.fetch` | Custom fetch function |
+| `includeRaw` | `boolean` | `false` | Include raw parsed metadata |
+| `validateUrl` | `boolean` | `true` | Validate URL before fetching |
+
+Default headers:
+
+```typescript
+{
+  "User-Agent": "OpenLinkBot/1.0 (+https://openlink.sh)",
+  "Accept": "text/html,application/xhtml+xml"
+}
+```
+
+### Examples
+
+Basic usage:
+
+```typescript
+const data = await preview("https://github.com")
+console.log(data.title)
+```
+
+With options:
+
+```typescript
+const data = await preview("https://github.com", {
+  timeout: 5000,
+  includeRaw: true,
+  headers: {
+    "Accept-Language": "en-US"
+  }
+})
+```
+
+Custom fetch for testing:
+
+```typescript
+const data = await preview("https://example.com", {
+  fetch: mockFetch
+})
+```
+
+---
+
+## parse
+
+Parse an HTML string for Open Graph, Twitter Card, and standard meta tags. Use this when you already have the HTML content.
+
+```typescript
+import { parse } from "openlink"
+
+const html = await fetch("https://example.com").then(r => r.text())
+const metadata = parse(html)
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `html` | `string` | The HTML string to parse |
+
+### Returns
+
+Returns a `ParseResult` object with all extracted metadata fields.
+
+### Example
+
+```typescript
+import { parse } from "openlink"
+
+const html = `
+  <html>
+    <head>
+      <title>My Page</title>
+      <meta property="og:title" content="My Open Graph Title">
+      <meta property="og:image" content="https://example.com/image.png">
+    </head>
+  </html>
+`
+
+const result = parse(html)
+console.log(result.ogTitle) // "My Open Graph Title"
+console.log(result.title) // "My Page"
+```
+
+---
+
+## extract
+
+Extract and normalize metadata from a parsed result. Combines Open Graph, Twitter Card, and HTML meta tags with proper fallbacks.
+
+```typescript
+import { parse, extract } from "openlink"
+
+const parsed = parse(html)
+const result = extract(parsed, "https://example.com")
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `parsed` | `ParseResult` | Output from `parse()` |
+| `url` | `string` | Original URL for resolving relative paths |
+
+### Returns
+
+Returns a normalized `PreviewResult` object.
+
+### Example
+
+```typescript
+import { parse, extract } from "openlink"
+
+const html = await fetch(url).then(r => r.text())
+const parsed = parse(html)
+const result = extract(parsed, url)
+
+console.log(result.title) // Normalized title
+console.log(result.image) // Absolute image URL
+```
+
+---
+
+## isValidUrl
+
+Check if a string is a valid URL.
+
+```typescript
+import { isValidUrl } from "openlink"
+
+isValidUrl("https://github.com") // true
+isValidUrl("not-a-url") // false
+isValidUrl("github.com") // false (no protocol)
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The string to validate |
+
+### Returns
+
+Returns `boolean`.
+
+---
+
+## normalizeUrl
+
+Normalize a URL by adding protocol if missing and resolving relative paths.
+
+```typescript
+import { normalizeUrl } from "openlink"
+
+normalizeUrl("github.com") // "https://github.com"
+normalizeUrl("/path", "https://example.com") // "https://example.com/path"
+normalizeUrl("example.com/page") // "https://example.com/page"
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to normalize |
+| `base` | `string` | Optional base URL for relative paths |
+
+### Returns
+
+Returns the normalized URL string.

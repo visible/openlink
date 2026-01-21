@@ -1,0 +1,119 @@
+---
+title: Quick Start
+description: Get started with OpenLink in under a minute.
+---
+
+<Steps>
+<Step>
+## Install OpenLink
+
+<Tabs items={["bun", "pnpm", "npm"]}>
+<Tab value="bun">
+```bash
+bun add openlink
+```
+</Tab>
+<Tab value="pnpm">
+```bash
+pnpm add openlink
+```
+</Tab>
+<Tab value="npm">
+```bash
+npm install openlink
+```
+</Tab>
+</Tabs>
+</Step>
+
+<Step>
+## Import and use
+
+```typescript
+import { preview } from "openlink"
+
+const data = await preview("https://vercel.com")
+```
+</Step>
+
+<Step>
+## Get your data
+
+```typescript
+{
+  title: "Vercel",
+  description: "Develop. Preview. Ship.",
+  image: "https://vercel.com/og-image.png",
+  favicon: "https://vercel.com/favicon.ico",
+  siteName: "Vercel",
+  url: "https://vercel.com"
+}
+```
+</Step>
+</Steps>
+
+## Framework Examples
+
+<Tabs items={["Next.js", "Express", "Cloudflare"]}>
+<Tab value="Next.js">
+```typescript title="app/api/preview/route.ts"
+import { preview } from "openlink"
+import { NextRequest, NextResponse } from "next/server"
+
+export async function GET(request: NextRequest) {
+  const url = request.nextUrl.searchParams.get("url")
+
+  if (!url) {
+    return NextResponse.json({ error: "Missing url" }, { status: 400 })
+  }
+
+  const data = await preview(url)
+  return NextResponse.json(data)
+}
+```
+</Tab>
+<Tab value="Express">
+```typescript title="server.ts"
+import express from "express"
+import { preview } from "openlink"
+
+const app = express()
+
+app.get("/preview", async (req, res) => {
+  const { url } = req.query
+
+  if (!url || typeof url !== "string") {
+    return res.status(400).json({ error: "Missing url" })
+  }
+
+  const data = await preview(url)
+  res.json(data)
+})
+
+app.listen(3000)
+```
+</Tab>
+<Tab value="Cloudflare">
+```typescript title="worker.ts"
+import { preview } from "openlink"
+
+export default {
+  async fetch(request: Request) {
+    const url = new URL(request.url)
+    const target = url.searchParams.get("url")
+
+    if (!target) {
+      return new Response("Missing url", { status: 400 })
+    }
+
+    const data = await preview(target)
+    return Response.json(data)
+  }
+}
+```
+</Tab>
+</Tabs>
+
+<Callout type="info">
+OpenLink works on any JavaScript runtime including Node.js, Bun, Deno, and edge functions.
+</Callout>

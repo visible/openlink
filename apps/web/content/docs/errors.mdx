@@ -1,0 +1,218 @@
+---
+title: Error Handling
+description: Understanding and handling errors from the OpenLink API.
+---
+
+OpenLink returns structured error responses with consistent formatting across all endpoints.
+
+## Error Response Format
+
+```json
+{
+  "error": "Human-readable error message",
+  "code": "ERROR_CODE",
+  "message": "Additional context (optional)",
+  "docs": "https://openlink.sh/docs#relevant-section"
+}
+```
+
+## Error Codes
+
+### Preview API Errors
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| `MISSING_URL` | 400 | URL parameter not provided |
+| `INVALID_URL` | 400 | URL format is invalid |
+| `INVALID_TTL` | 400 | TTL outside valid range |
+| `FETCH_ERROR` | 500 | Failed to fetch from origin |
+
+### Favicon API Errors
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| `MISSING_DOMAIN` | 400 | Domain parameter not provided |
+
+Note: Favicon API returns generated fallback instead of errors for fetch failures.
+
+## Handling Errors
+
+### JavaScript
+
+```typescript
+async function getPreview(url: string) {
+  const res = await fetch(`/api/preview?url=${encodeURIComponent(url)}`)
+
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.message || error.error)
+  }
+
+  return res.json()
+}
+
+try {
+  const data = await getPreview("https://example.com")
+} catch (error) {
+  console.error("Preview failed:", error.message)
+}
+```
+
+### React
+
+```tsx
+function Preview({ url }: { url: string }) {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    fetch(`/api/preview?url=${encodeURIComponent(url)}`)
+      .then(async res => {
+        if (!res.ok) {
+          const err = await res.json()
+          throw new Error(err.error)
+        }
+        return res.json()
+      })
+      .then(result => setData(result.data))
+      .catch(err => setError(err.message))
+  }, [url])
+
+  if (error) return <div>Error: {error}</div>
+  if (!data) return <div>Loading...</div>
+
+  return <div>{data.title}</div>
+}
+```
+
+### With Error Boundaries
+
+```tsx
+import { ErrorBoundary } from "react-error-boundary"
+
+function ErrorFallback({ error }: { error: Error }) {
+  return (
+    <div className="p-4 bg-red-50 text-red-600 rounded">
+      Failed to load preview: {error.message}
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <Preview url="https://example.com" />
+    </ErrorBoundary>
+  )
+}
+```
+
+## Common Issues
+
+### URL Must Include Protocol
+
+```typescript
+// Wrong
+fetch("/api/preview?url=example.com")
+
+// Correct
+fetch("/api/preview?url=https://example.com")
+```
+
+### URL Must Be Encoded
+
+```typescript
+// Wrong
+fetch(`/api/preview?url=https://example.com?foo=bar`)
+
+// Correct
+fetch(`/api/preview?url=${encodeURIComponent("https://example.com?foo=bar")}`)
+```
+
+### TTL Format
+
+```typescript
+// Wrong
+fetch("/api/preview?url=https://example.com&ttl=3600")
+
+// Correct
+fetch("/api/preview?url=https://example.com&ttl=1h")
+```
+
+## Timeout Handling
+
+The API has built-in timeouts:
+
+| Operation | Timeout |
+|-----------|---------|
+| HTML fetch | 5 seconds |
+| Icon fetch | 3 seconds |
+| Manifest fetch | 3 seconds |
+
+If a site is slow, you may see partial data or fallbacks.
+
+### Client-Side Timeout
+
+Add your own timeout for safety:
+
+```typescript
+async function fetchWithTimeout(url: string, timeout = 10000) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+  try {
+    const response = await fetch(url, { signal: controller.signal })
+    clearTimeout(timeoutId)
+    return response
+  } catch (error) {
+    clearTimeout(timeoutId)
+    throw error
+  }
+}
+```
+
+## Graceful Degradation
+
+Design your UI to handle missing data:
+
+```tsx
+function LinkCard({ url }: { url: string }) {
+  const { data, error, loading } = usePreview(url)
+  const domain = new URL(url).hostname
+
+  return (
+    <div className="border rounded p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <img
+          src={`/api/favicon?domain=${domain}`}
+          alt=""
+          className="w-4 h-4"
+          onError={(e) => e.currentTarget.style.display = "none"}
+        />
+        <span className="text-sm text-gray-500">
+          {data?.siteName || domain}
+        </span>
+      </div>
+
+      <h3 className="font-medium">
+        {loading ? "Loading..." : data?.title || url}
+      </h3>
+
+      {data?.description && (
+        <p className="text-gray-600 text-sm mt-1">
+          {data.description}
+        </p>
+      )}
+    </div>
+  )
+}
+```
+
+## Rate Limiting
+
+The hosted API does not currently enforce strict rate limits, but please be respectful:
+
+- Cache responses client-side
+- Use appropriate TTLs
+- Don't make parallel requests for the same URL
+- Contact us for high-volume usage

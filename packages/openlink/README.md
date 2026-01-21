@@ -1,65 +1,21 @@
 # openlink
 
-Edge-first link preview. Zero dependencies.
-
-## Install
+Edge-first link preview. Zero dependencies, ~2kb gzipped.
 
 ```bash
 npm install openlink
 ```
 
-## Usage
-
 ```js
 import { preview } from 'openlink'
 
 const data = await preview('https://github.com')
-
-// {
-//   url: 'https://github.com',
-//   title: 'GitHub',
-//   description: 'Where the world builds software',
-//   image: 'https://github.githubassets.com/images/modules/og.png',
-//   favicon: 'https://github.com/favicon.ico',
-//   siteName: 'GitHub',
-//   domain: 'github.com',
-//   type: 'website'
-// }
 ```
 
-## Options
+Returns `{ url, title, description, image, favicon, siteName, domain, type }`
 
-```js
-await preview(url, {
-  timeout: 10000,
-  headers: { 'User-Agent': 'custom' },
-  followRedirects: true
-})
-```
+Works on Cloudflare Workers, Vercel Edge, Deno, Bun, and Node 18+.
 
-## Edge Support
-
-Works in all edge runtimes:
-
-- Cloudflare Workers
-- Vercel Edge Functions
-- Deno Deploy
-- Bun
-
-## API
-
-### preview(url, options?)
-
-Fetches and parses link metadata.
-
-### parse(html)
-
-Parses HTML string for metadata tags.
-
-### extract(parsed, url)
-
-Normalizes parsed metadata into clean output.
-
-## License
+[Docs](https://openlink.sh/docs) · [API](https://openlink.sh/docs/api) · [TypeScript](https://openlink.sh/docs/typescript)
 
 MIT
