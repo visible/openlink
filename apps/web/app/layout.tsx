@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -74,6 +75,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 						{children}
 					</I18nProvider>
 				</RootProvider>
+				<Analytics />
 			</body>
 		</html>
 	);
