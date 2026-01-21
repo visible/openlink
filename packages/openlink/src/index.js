@@ -69,7 +69,8 @@ async function fetchPreview(url, opts) {
 		});
 
 		if (!response.ok) {
-			throw new PreviewError(`HTTP ${response.status}`, "HTTP_ERROR", {
+			const statusText = getStatusText(response.status);
+			throw new PreviewError(`${statusText} (${response.status})`, "HTTP_ERROR", {
 				status: response.status,
 			});
 		}
@@ -96,10 +97,18 @@ async function fetchPreview(url, opts) {
 		if (err instanceof PreviewError) throw err;
 
 		if (err.name === "AbortError") {
-			throw new PreviewError("Request timed out", "TIMEOUT", { cause: err });
+			throw new PreviewError(`Request timed out after ${opts.timeout}ms`, "TIMEOUT", { cause: err });
 		}
 
-		throw new PreviewError(err.message || "Failed to fetch", "FETCH_ERROR", {
+		if (err.code === "ENOTFOUND" || err.code === "ECONNREFUSED") {
+			throw new PreviewError(`Cannot connect to ${new URL(url).hostname}`, "FETCH_ERROR", { cause: err });
+		}
+
+		if (err.code === "CERT_HAS_EXPIRED" || err.code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE") {
+			throw new PreviewError(`SSL certificate error for ${new URL(url).hostname}`, "FETCH_ERROR", { cause: err });
+		}
+
+		throw new PreviewError(err.message || `Failed to fetch ${url}`, "FETCH_ERROR", {
 			cause: err,
 		});
 	} finally {
@@ -134,6 +143,24 @@ export function normalizeUrl(url, base) {
 	}
 
 	return url;
+}
+
+function getStatusText(status) {
+	const texts = {
+		400: "Bad Request",
+		401: "Unauthorized",
+		403: "Forbidden",
+		404: "Not Found",
+		405: "Method Not Allowed",
+		408: "Request Timeout",
+		410: "Gone",
+		429: "Too Many Requests",
+		500: "Internal Server Error",
+		502: "Bad Gateway",
+		503: "Service Unavailable",
+		504: "Gateway Timeout",
+	};
+	return texts[status] || `HTTP Error`;
 }
 
 export { parse } from "./parse.js";

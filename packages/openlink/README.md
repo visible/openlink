@@ -12,7 +12,7 @@ import { preview } from 'openlink'
 const data = await preview('https://github.com')
 ```
 
-Returns `{ url, title, description, image, favicon, siteName, domain, type }`
+Returns `{ url, title, description, image, favicon, siteName, domain, type, contentType, lang, ... }`
 
 ## oEmbed
 
