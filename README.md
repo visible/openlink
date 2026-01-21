@@ -20,3 +20,4 @@ bun run dev
 
 - [npm](https://npmjs.com/package/openlink)
 - [website](https://openlink.sh)
+
