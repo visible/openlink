@@ -25,11 +25,6 @@ const providers = [
 		endpoint: (url) => `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`,
 	},
 	{
-		name: "bluesky",
-		pattern: /bsky\.app\/profile\/[\w.:]+\/post\/[\w]+/,
-		endpoint: (url) => `https://embed.bsky.app/oembed?url=${encodeURIComponent(url)}&format=json`,
-	},
-	{
 		name: "codepen",
 		pattern: /codepen\.io\/[\w-]+\/pen\/([a-zA-Z0-9]+)/,
 		endpoint: (url) => `https://codepen.io/api/oembed?url=${encodeURIComponent(url)}&format=json`,
