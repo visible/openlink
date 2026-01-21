@@ -1,7 +1,7 @@
 const providers = [
 	{
 		name: "youtube",
-		pattern: /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/,
+		pattern: /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]+)/,
 		endpoint: (url) => `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`,
 	},
 	{
@@ -10,19 +10,34 @@ const providers = [
 		endpoint: (url) => `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(url)}`,
 	},
 	{
+		name: "dailymotion",
+		pattern: /dailymotion\.com\/video\/([a-zA-Z0-9]+)/,
+		endpoint: (url) => `https://www.dailymotion.com/services/oembed?url=${encodeURIComponent(url)}&format=json`,
+	},
+	{
+		name: "twitch",
+		pattern: /twitch\.tv\/(?:videos\/(\d+)|(\w+)\/clip\/(\w+)|(\w+))/,
+		endpoint: (url) => `https://api.twitch.tv/v5/oembed?url=${encodeURIComponent(url)}`,
+	},
+	{
 		name: "twitter",
 		pattern: /(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/,
 		endpoint: (url) => `https://publish.twitter.com/oembed?url=${encodeURIComponent(url)}`,
 	},
 	{
 		name: "spotify",
-		pattern: /open\.spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/,
+		pattern: /open\.spotify\.com\/(track|album|playlist|artist|episode|show)\/([a-zA-Z0-9]+)/,
 		endpoint: (url) => `https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`,
 	},
 	{
 		name: "soundcloud",
 		pattern: /soundcloud\.com\/[\w-]+\/[\w-]+/,
 		endpoint: (url) => `https://soundcloud.com/oembed?url=${encodeURIComponent(url)}&format=json`,
+	},
+	{
+		name: "mixcloud",
+		pattern: /mixcloud\.com\/[\w-]+\/[\w-]+/,
+		endpoint: (url) => `https://www.mixcloud.com/oembed/?url=${encodeURIComponent(url)}&format=json`,
 	},
 	{
 		name: "tiktok",
@@ -35,6 +50,36 @@ const providers = [
 		endpoint: (url) => `https://api.instagram.com/oembed?url=${encodeURIComponent(url)}`,
 	},
 	{
+		name: "facebook",
+		pattern: /facebook\.com\/(?:[\w.]+\/(?:posts|videos)\/|watch\/\?v=)(\d+)/,
+		endpoint: (url) => `https://www.facebook.com/plugins/post/oembed.json/?url=${encodeURIComponent(url)}`,
+	},
+	{
+		name: "tumblr",
+		pattern: /tumblr\.com\/post\/(\d+)/,
+		endpoint: (url) => `https://www.tumblr.com/oembed/1.0?url=${encodeURIComponent(url)}`,
+	},
+	{
+		name: "reddit",
+		pattern: /reddit\.com\/r\/[\w]+\/comments\/[\w]+/,
+		endpoint: (url) => `https://www.reddit.com/oembed?url=${encodeURIComponent(url)}`,
+	},
+	{
+		name: "flickr",
+		pattern: /flickr\.com\/photos\/[\w@-]+\/(\d+)/,
+		endpoint: (url) => `https://www.flickr.com/services/oembed?url=${encodeURIComponent(url)}&format=json`,
+	},
+	{
+		name: "giphy",
+		pattern: /giphy\.com\/(?:gifs|clips)\/(?:[\w-]+-)?([a-zA-Z0-9]+)/,
+		endpoint: (url) => `https://giphy.com/services/oembed?url=${encodeURIComponent(url)}`,
+	},
+	{
+		name: "imgur",
+		pattern: /imgur\.com\/(?:a\/|gallery\/)?([a-zA-Z0-9]+)/,
+		endpoint: (url) => `https://api.imgur.com/oembed.json?url=${encodeURIComponent(url)}`,
+	},
+	{
 		name: "codepen",
 		pattern: /codepen\.io\/[\w-]+\/pen\/([a-zA-Z0-9]+)/,
 		endpoint: (url) => `https://codepen.io/api/oembed?url=${encodeURIComponent(url)}&format=json`,
@@ -45,9 +90,39 @@ const providers = [
 		endpoint: (url) => `https://codesandbox.io/oembed?url=${encodeURIComponent(url)}`,
 	},
 	{
+		name: "jsfiddle",
+		pattern: /jsfiddle\.net\/[\w]+\/[\w]+/,
+		endpoint: (url) => `https://jsfiddle.net/oembed?url=${encodeURIComponent(url)}&format=json`,
+	},
+	{
+		name: "replit",
+		pattern: /replit\.com\/@[\w]+\/[\w-]+/,
+		endpoint: (url) => `https://replit.com/data/oembed?url=${encodeURIComponent(url)}`,
+	},
+	{
+		name: "glitch",
+		pattern: /glitch\.com\/~[\w-]+/,
+		endpoint: (url) => `https://glitch.com/oembed?url=${encodeURIComponent(url)}&format=json`,
+	},
+	{
 		name: "figma",
-		pattern: /figma\.com\/(file|design|proto)\/([a-zA-Z0-9]+)/,
+		pattern: /figma\.com\/(file|design|proto|board)\/([a-zA-Z0-9]+)/,
 		endpoint: (url) => `https://www.figma.com/api/oembed?url=${encodeURIComponent(url)}`,
+	},
+	{
+		name: "loom",
+		pattern: /loom\.com\/share\/([a-zA-Z0-9]+)/,
+		endpoint: (url) => `https://www.loom.com/v1/oembed?url=${encodeURIComponent(url)}`,
+	},
+	{
+		name: "speakerdeck",
+		pattern: /speakerdeck\.com\/[\w-]+\/[\w-]+/,
+		endpoint: (url) => `https://speakerdeck.com/oembed.json?url=${encodeURIComponent(url)}`,
+	},
+	{
+		name: "kickstarter",
+		pattern: /kickstarter\.com\/projects\/[\w-]+\/[\w-]+/,
+		endpoint: (url) => `https://www.kickstarter.com/services/oembed?url=${encodeURIComponent(url)}`,
 	},
 ];
 

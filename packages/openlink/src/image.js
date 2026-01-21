@@ -31,6 +31,9 @@ function detectSize(bytes) {
 	if (isJpeg(bytes)) return parseJpeg(bytes);
 	if (isGif(bytes)) return parseGif(bytes);
 	if (isWebp(bytes)) return parseWebp(bytes);
+	if (isAvif(bytes)) return parseAvif(bytes);
+	if (isBmp(bytes)) return parseBmp(bytes);
+	if (isIco(bytes)) return parseIco(bytes);
 	return null;
 }
 
@@ -113,4 +116,53 @@ function parseWebp(bytes) {
 		}
 	}
 	return null;
+}
+
+function isAvif(bytes) {
+	if (bytes.length < 12) return false;
+	return (
+		bytes[4] === 0x66 &&
+		bytes[5] === 0x74 &&
+		bytes[6] === 0x79 &&
+		bytes[7] === 0x70 &&
+		(bytes[8] === 0x61 && bytes[9] === 0x76 && bytes[10] === 0x69 && bytes[11] === 0x66)
+	);
+}
+
+function parseAvif(bytes) {
+	if (bytes.length < 100) return null;
+	for (let i = 0; i < bytes.length - 20; i++) {
+		if (bytes[i] === 0x69 && bytes[i + 1] === 0x73 && bytes[i + 2] === 0x70 && bytes[i + 3] === 0x65) {
+			const width = (bytes[i + 4] << 24) | (bytes[i + 5] << 16) | (bytes[i + 6] << 8) | bytes[i + 7];
+			const height = (bytes[i + 8] << 24) | (bytes[i + 9] << 16) | (bytes[i + 10] << 8) | bytes[i + 11];
+			if (width > 0 && width < 100000 && height > 0 && height < 100000) {
+				return { width, height, type: "avif" };
+			}
+		}
+	}
+	return null;
+}
+
+function isBmp(bytes) {
+	return bytes[0] === 0x42 && bytes[1] === 0x4d;
+}
+
+function parseBmp(bytes) {
+	if (bytes.length < 26) return null;
+	const width = bytes[18] | (bytes[19] << 8) | (bytes[20] << 16) | (bytes[21] << 24);
+	const height = Math.abs(bytes[22] | (bytes[23] << 8) | (bytes[24] << 16) | (bytes[25] << 24));
+	return { width, height, type: "bmp" };
+}
+
+function isIco(bytes) {
+	return bytes[0] === 0x00 && bytes[1] === 0x00 && bytes[2] === 0x01 && bytes[3] === 0x00;
+}
+
+function parseIco(bytes) {
+	if (bytes.length < 8) return null;
+	let width = bytes[6];
+	let height = bytes[7];
+	if (width === 0) width = 256;
+	if (height === 0) height = 256;
+	return { width, height, type: "ico" };
 }
