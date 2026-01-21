@@ -24,7 +24,7 @@ const data = await preview('https://youtube.com/watch?v=...', {
 console.log(data.oembed) // { provider, title, html, thumbnail, ... }
 ```
 
-Supports YouTube, Vimeo, Twitter/X, Spotify, TikTok, Instagram, CodePen, CodeSandbox, Figma.
+Supports YouTube, Spotify, SoundCloud, TikTok, Vimeo, CodePen, CodeSandbox. Provider detection for Twitter/X, Instagram, Figma (require API auth).
 
 ## JSON-LD
 
